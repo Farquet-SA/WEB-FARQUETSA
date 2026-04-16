@@ -5,23 +5,30 @@ import {
   ROLE_KEY,
   clearTokens,
   getAccess,
+  setAccess,
 } from "./tokens";
 
 export async function login(username, password) {
   const { data } = await api.post("/auth/login/", { username, password });
-  localStorage.setItem(ACCESS_KEY, data.access);
-  localStorage.setItem("refresh", data.refresh);
+  // El servidor setea el refresh token como cookie HttpOnly.
+  // Solo guardamos el access token (vida corta: 15 min).
+  setAccess(data.access);
 
   const me = await getCurrentUser();
   if (!me?.is_staff) {
-    logout();
+    clearTokens();
+    try {
+      await api.post("/auth/logout/");
+    } catch {
+      // best effort — invalida la cookie del servidor
+    }
     throw new Error("Tu usuario no tiene permisos de administrador.");
   }
 
   const role = me.role || (me.is_superuser ? "superadmin" : "admin");
   localStorage.setItem(ADMIN_FLAG_KEY, "1");
   localStorage.setItem(ROLE_KEY, role);
-  return { ...data, me };
+  return { access: data.access, me };
 }
 
 export function getRole() {
@@ -33,7 +40,12 @@ export async function getCurrentUser() {
   return data;
 }
 
-export function logout() {
+export async function logout() {
+  try {
+    await api.post("/auth/logout/");
+  } catch {
+    // best effort
+  }
   clearTokens();
 }
 

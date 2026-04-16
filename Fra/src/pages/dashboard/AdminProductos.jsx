@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createProduct,
   deleteProduct,
@@ -20,14 +21,22 @@ const EMPTY_FORM = {
 };
 
 export default function AdminProductos() {
+  const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ["productos"],
+    queryFn: getProducts,
+  });
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categorias"],
+    queryFn: getCategories,
+  });
+
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState("");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -36,27 +45,6 @@ export default function AdminProductos() {
     () => new Map(categories.map((item) => [String(item.id), item.nombre])),
     [categories],
   );
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const [productData, categoryData] = await Promise.all([
-        getProducts(),
-        getCategories(),
-      ]);
-      setProducts(Array.isArray(productData) ? productData : []);
-      setCategories(Array.isArray(categoryData) ? categoryData : []);
-    } catch {
-      setError("No se pudieron cargar los productos.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   const resetForm = ({ clearFeedback = true } = {}) => {
     setForm(EMPTY_FORM);
@@ -92,6 +80,7 @@ export default function AdminProductos() {
       },
     };
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const { payload, hasSelectedFile, currentFile } = buildPayload();
@@ -125,16 +114,13 @@ export default function AdminProductos() {
         imageUrl = await uploadProductImage(currentFile);
       }
 
-      const productPayload = {
-        ...payload,
-        imagen: imageUrl,
-      };
+      const productPayload = { ...payload, imagen: imageUrl };
 
       if (editingId) await updateProduct(editingId, productPayload);
       else await createProduct(productPayload);
 
       resetForm({ clearFeedback: false });
-      await loadData();
+      await queryClient.invalidateQueries({ queryKey: ["productos"] });
       setSuccess(editingId ? "Producto actualizado." : "Producto creado.");
     } catch (err) {
       const detail =
@@ -178,7 +164,7 @@ export default function AdminProductos() {
       setSuccess("");
       await deleteProduct(id);
       if (editingId === id) resetForm();
-      await loadData();
+      await queryClient.invalidateQueries({ queryKey: ["productos"] });
       setSuccess("Producto eliminado.");
     } catch {
       setError("No se pudo eliminar el producto.");
@@ -410,12 +396,12 @@ export default function AdminProductos() {
       >
         <h2 style={{ margin: 0, color: "#0b2b4b" }}>Listado actual</h2>
         <p style={{ color: "#5c6b7b", marginTop: 8 }}>
-          {loading
+          {isLoading
             ? "Cargando..."
             : `${products.length} producto(s) registrados`}
         </p>
 
-        {loading ? (
+        {isLoading ? (
           <div style={emptyBoxStyle}>Cargando productos...</div>
         ) : products.length === 0 ? (
           <div style={emptyBoxStyle}>No hay productos creados todavia.</div>

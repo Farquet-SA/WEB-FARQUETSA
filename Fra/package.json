@@ -12,6 +12,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.0.0",
     "axios": "^1.13.4",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",

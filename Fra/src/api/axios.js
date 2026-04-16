@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAccess, getRefresh, setTokens, clearTokens } from "./tokens";
+import { getAccess, setAccess, clearTokens } from "./tokens";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -11,6 +11,7 @@ if (!BASE_URL) {
 
 const instance = axios.create({
   baseURL: BASE_URL,
+  withCredentials: true, // envía la cookie HttpOnly del refresh token automáticamente
   headers: {
     Accept: "application/json",
   },
@@ -47,12 +48,6 @@ instance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const refresh = getRefresh();
-    if (!refresh) {
-      clearTokens();
-      return Promise.reject(error);
-    }
-
     original._retry = true;
 
     if (isRefreshing) {
@@ -68,16 +63,18 @@ instance.interceptors.response.use(
     isRefreshing = true;
 
     try {
+      // La cookie HttpOnly se envía automáticamente con withCredentials: true.
+      // No necesitamos pasar el refresh en el body.
       const resp = await axios.post(
         `${BASE_URL}/auth/refresh/`,
-        { refresh },
-        { headers: { "Content-Type": "application/json" } },
+        {},
+        { withCredentials: true, headers: { "Content-Type": "application/json" } },
       );
 
       const newAccess = resp.data?.access;
       if (!newAccess) throw new Error("No access token returned on refresh");
 
-      setTokens({ access: newAccess });
+      setAccess(newAccess);
       runQueue(null, newAccess);
 
       original.headers = original.headers || {};

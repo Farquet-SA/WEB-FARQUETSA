@@ -103,6 +103,7 @@ CORS_ALLOWED_ORIGINS = get_list(
     "DJANGO_CORS_ALLOWED_ORIGINS",
     "http://localhost:5173,http://127.0.0.1:5173",
 )
+CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = get_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 
 
@@ -116,9 +117,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'catalogo.apps.CatalogoConfig',
-    
 ]
 
 MIDDLEWARE = [
@@ -213,9 +214,11 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": False,
+    "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+SIMPLE_JWT_REFRESH_COOKIE = "refresh_token"
 
 CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "").strip()
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "").strip()

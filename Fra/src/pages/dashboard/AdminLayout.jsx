@@ -5,8 +5,8 @@ export default function AdminLayout() {
   const role = getRole();
   const nav = useNavigate();
 
-  const salir = () => {
-    logout();
+  const salir = async () => {
+    await logout();
     nav("/login", { replace: true });
   };
 

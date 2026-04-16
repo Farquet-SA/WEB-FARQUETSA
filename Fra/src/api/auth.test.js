@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { isTokenValid, isAuthed, getRole } from "./auth";
 import { ACCESS_KEY, ADMIN_FLAG_KEY, ROLE_KEY } from "./tokens";
 

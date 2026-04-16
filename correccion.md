@@ -66,12 +66,65 @@ python manage.py test catalogo
 
 ---
 
-## Prioridad Media — Pendientes
+## Prioridad Media — Completadas
 
-- [ ] Habilitar blacklist de refresh tokens (logout real)
-- [ ] Eliminar `Fra/src/api/users.js` (código muerto — endpoint `/usuarios/` no existe en el backend)
-- [ ] TanStack Query para estado de servidor
-- [ ] Tokens en cookies HttpOnly (requiere cambio de backend)
+### 5. Eliminar `users.js` (código muerto)
+**Archivos:** `Fra/src/api/users.js` (eliminado)
+
+**Qué se hizo:**
+- Confirmado que `users.js` no era importado por ningún componente.
+- Llamaba a `/usuarios/` que no existe en el backend (el endpoint real es `/admins/`).
+- Archivo eliminado.
+
+---
+
+### 6. Tokens en cookies HttpOnly + logout real con blacklist
+**Archivos:** `BAC/backend/settings.py`, `BAC/catalogo/views.py`, `BAC/backend/urls.py`, `Fra/src/api/tokens.js`, `Fra/src/api/auth.js`, `Fra/src/api/axios.js`, `Fra/src/pages/dashboard/AdminLayout.jsx`
+
+**Qué se hizo:**
+
+**Backend:**
+- `settings.py`: agregado `rest_framework_simplejwt.token_blacklist` a `INSTALLED_APPS`, `BLACKLIST_AFTER_ROTATION = True`, y `SIMPLE_JWT_REFRESH_COOKIE = "refresh_token"`.
+- `views.py`: creadas tres nuevas vistas:
+  - `CookieLoginView` (`POST /api/auth/login/`): valida credenciales, devuelve el access token en el body JSON y setea el refresh token como cookie `HttpOnly; Secure; SameSite=Strict` con `path=/api/auth/` para limitar su alcance.
+  - `CookieRefreshView` (`POST /api/auth/refresh/`): lee el refresh de la cookie (no del body), devuelve nuevo access token y rota la cookie si `ROTATE_REFRESH_TOKENS=True`.
+  - `LogoutView` (`POST /api/auth/logout/`): lee el refresh de la cookie, lo blacklista en la base de datos, y borra la cookie. El refresh queda inválido permanentemente.
+- `urls.py`: reemplazados los endpoints SimpleJWT originales por las tres nuevas vistas.
+
+> **Requiere migración de base de datos una sola vez:**
+> ```bash
+> python manage.py migrate
+> ```
+
+**Frontend:**
+- `tokens.js`: eliminadas las funciones de refresh (`getRefresh`, `setTokens` con refresh). Ahora solo maneja el access token y los flags de sesión. Agregada `setAccess()` para mayor claridad.
+- `auth.js`: login ya no guarda refresh en localStorage (el servidor lo setea como cookie). En error de `is_staff`, se llama al endpoint logout para invalidar la cookie recién creada. `logout()` ahora es `async` y llama `POST /auth/logout/` antes de limpiar localStorage.
+- `axios.js`: agregado `withCredentials: true` al instance para que la cookie se envíe automáticamente. El interceptor de refresh ya no envía el token en el body — solo hace POST vacío y la cookie viaja sola.
+- `AdminLayout.jsx`: `salir()` cambiado a `async` para `await logout()`.
+
+**Resultado de seguridad:** Un refresh token robado del localStorage ya no es posible — solo existe en una cookie que JS no puede leer. El logout invalida el token en la base de datos, así que no puede ser reutilizado.
+
+---
+
+### 7. TanStack Query — setup e integración en AdminProductos
+**Archivos:** `Fra/package.json`, `Fra/src/main.jsx`, `Fra/src/pages/dashboard/AdminProductos.jsx`
+
+**Qué se hizo:**
+- `package.json`: agregado `@tanstack/react-query: ^5.0.0` a dependencias.
+- `main.jsx`: envuelto `<App />` con `<QueryClientProvider>`. `QueryClient` configurado con `staleTime: 30s` y `retry: 1`.
+- `AdminProductos.jsx`: migrado de `useState + useEffect + loadData()` a TanStack Query:
+  - `useQuery({ queryKey: ["productos"], queryFn: getProducts })` — reemplaza `useState([]) + useEffect + setProducts`.
+  - `useQuery({ queryKey: ["categorias"], queryFn: getCategories })` — mismo patrón.
+  - `handleSubmit` y `handleDelete`: reemplazan `await loadData()` por `await queryClient.invalidateQueries({ queryKey: ["productos"] })` — más eficiente (no recarga categorías innecesariamente).
+  - Eliminados: `loading`, `setLoading`, la función `loadData`, y el `useEffect`.
+- Las otras páginas del dashboard (`AdminCategorias`, `AdminServicios`, etc.) pueden migrarse progresivamente con el mismo patrón.
+
+> **Requiere instalación de dependencias:**
+> ```bash
+> cd Fra && npm install
+> ```
+
+---
 
 ## Prioridad Baja — Pendientes
 
