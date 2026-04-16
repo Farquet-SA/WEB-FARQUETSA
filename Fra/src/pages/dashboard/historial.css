@@ -1,0 +1,218 @@
+.historial-container {
+  padding: 20px;
+ }
+
+.historial-container h2 {
+  margin-bottom: 20px;
+  color: #1f3b5b;
+}
+
+/* Layout */
+.historial-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+.historial-tabla {
+  flex: 1;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.historial-tabla th {
+  background-color: #1f3b5b;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.historial-tabla td {
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.historial-tabla tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+.sin-resultados {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
+/* Panel derecho */
+.historial-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  min-width: 160px;
+}
+
+/* Filtros */
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-filtro {
+  background-color: white;
+  color: #1f3b5b;
+  padding: 10px 16px;
+  border: 2px solid #1f3b5b;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-filtro:hover {
+  background-color: #e8eef4;
+}
+
+.btn-filtro.activo {
+  background-color: #1f3b5b;
+  color: white;
+}
+
+/* Exportar */
+.btn-pdf {
+  background-color: #1f3b5b;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-pdf:hover {
+  background-color: #16324a;
+}
+
+/* Limpieza automática */
+.limpieza {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.limpieza-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f3b5b;
+}
+
+.limpieza-select {
+  padding: 8px 10px;
+  border: 2px solid #1f3b5b;
+  border-radius: 8px;
+  color: #1f3b5b;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: white;
+}
+
+.limpieza-select:focus {
+  outline: none;
+  background-color: #e8eef4;
+}
+
+.limpieza-aviso {
+  font-size: 12px;
+  color: #2e7d32;
+  background-color: #e8f5e9;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.btn-borrar-ahora {
+  background-color: #c62828;
+  color: white;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-borrar-ahora:hover {
+  background-color: #b71c1c;
+}
+
+/* Modal de confirmación */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 32px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-titulo {
+  margin: 0 0 10px;
+  color: #1f3b5b;
+  font-size: 18px;
+}
+
+.modal-texto {
+  margin: 0 0 24px;
+  color: #444;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-cancelar {
+  background: none;
+  border: none;
+  color: #1f3b5b;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modal-cancelar:hover {
+  background-color: #e8eef4;
+}
+
+.modal-confirmar {
+  background-color: #c62828;
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modal-confirmar:hover {
+  background-color: #b71c1c;
+}
