@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   getServicios,
   createServicio,
@@ -34,7 +35,6 @@ export default function AdminServicios() {
   const [saving, setSaving] = useState(false);
 
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -48,7 +48,7 @@ export default function AdminServicios() {
       setSteps(Array.isArray(pasosData) ? pasosData : []);
       setTrust(Array.isArray(confianzaData) ? confianzaData : []);
     } catch {
-      setError("No se pudieron cargar los datos.");
+      toast.error("No se pudieron cargar los datos.");
     } finally {
       setLoading(false);
     }
@@ -62,6 +62,7 @@ export default function AdminServicios() {
     setForm(EMPTY_FORM);
     setEditingId(null);
     setError("");
+    // success messages handled by toast
   };
 
   const validate = () => {
@@ -82,7 +83,6 @@ export default function AdminServicios() {
 
     setSaving(true);
     setError("");
-    setSuccess("");
 
     try {
       const payload = {
@@ -94,43 +94,43 @@ export default function AdminServicios() {
       if (form.section === "servicios") {
         if (editingId) {
           await updateServicio(editingId, payload);
-          setSuccess("Servicio actualizado.");
+          toast.success("Servicio actualizado.");
         } else {
           await createServicio(payload);
-          setSuccess("Servicio creado.");
+          toast.success("Servicio creado.");
         }
       }
 
       if (form.section === "pasos") {
         const pasoPayload = {
-          numero: form.icon.trim(), 
+          numero: form.icon.trim(),
           title: form.title.trim(),
           text: form.text.trim(),
         };
 
         if (editingId) {
           await updatePaso(editingId, pasoPayload);
-          setSuccess("Paso actualizado.");
+          toast.success("Paso actualizado.");
         } else {
           await createPaso(pasoPayload);
-          setSuccess("Paso creado.");
+          toast.success("Paso creado.");
         }
       }
 
       if (form.section === "confianza") {
         if (editingId) {
           await updateConfianza(editingId, payload);
-          setSuccess("Elemento actualizado.");
+          toast.success("Elemento actualizado.");
         } else {
           await createConfianza(payload);
-          setSuccess("Elemento creado.");
+          toast.success("Elemento creado.");
         }
       }
 
       await loadData();
       resetForm();
     } catch {
-      setError("Ocurrió un error al guardar.");
+      toast.error("Ocurrió un error al guardar.");
     } finally {
       setSaving(false);
     }
@@ -147,7 +147,6 @@ export default function AdminServicios() {
     });
 
     setError("");
-    setSuccess("");
   };
 
   const handleDelete = async (id, section) => {
@@ -168,9 +167,9 @@ export default function AdminServicios() {
       }
 
       await loadData();
-      setSuccess("Registro eliminado.");
+      toast.success("Registro eliminado.");
     } catch {
-      setError("No se pudo eliminar.");
+      toast.error("No se pudo eliminar.");
     }
   };
 
@@ -240,11 +239,6 @@ export default function AdminServicios() {
         {error && (
           <p style={{ color: "#b42318", margin: "10px 0 0", fontWeight: 700 }}>
             {error}
-          </p>
-        )}
-        {success && (
-          <p style={{ color: "#166534", margin: "10px 0 0", fontWeight: 700 }}>
-            {success}
           </p>
         )}
 

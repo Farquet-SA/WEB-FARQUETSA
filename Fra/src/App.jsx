@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
 import SiteLayout from "./layouts/SiteLayout";
 
 import Home from "./pages/Home";
@@ -58,6 +59,7 @@ export default function App() {
         </Routes>
 
         <CartDrawer />
+        <Toaster position="top-right" richColors />
       </BrowserRouter>
     </CartProvider>
   );

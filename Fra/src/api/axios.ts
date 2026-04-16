@@ -1,7 +1,9 @@
-import axios from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 import { getAccess, setAccess, clearTokens } from "./tokens";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+type RetryableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+const BASE_URL = import.meta.env.VITE_API_URL as string | undefined;
 
 if (!BASE_URL) {
   console.error(
@@ -24,37 +26,48 @@ instance.interceptors.request.use((config) => {
 });
 
 let isRefreshing = false;
-let queue = [];
+let queue: Array<{
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+}> = [];
 
-const runQueue = (error, token = null) => {
+const runQueue = (error: unknown, token: string | null = null): void => {
   queue.forEach(({ resolve, reject }) => {
     if (error) reject(error);
-    else resolve(token);
+    else resolve(token!);
   });
   queue = [];
 };
 
 instance.interceptors.response.use(
   (res) => res,
-  async (error) => {
-    const original = error?.config;
+  async (error: unknown) => {
+    const axiosError = error as {
+      config?: RetryableConfig;
+      response?: { status: number };
+    };
+    const original = axiosError?.config;
     if (!original) return Promise.reject(error);
 
-    const url = original.url || "";
+    const url = original.url ?? "";
     const isAuthCall =
       url.includes("/auth/login/") || url.includes("/auth/refresh/");
 
-    if (error?.response?.status !== 401 || isAuthCall || original._retry) {
+    if (
+      axiosError?.response?.status !== 401 ||
+      isAuthCall ||
+      original._retry
+    ) {
       return Promise.reject(error);
     }
 
     original._retry = true;
 
     if (isRefreshing) {
-      return new Promise((resolve, reject) => {
+      return new Promise<string>((resolve, reject) => {
         queue.push({ resolve, reject });
       }).then((token) => {
-        original.headers = original.headers || {};
+        original.headers = original.headers ?? {};
         original.headers.Authorization = `Bearer ${token}`;
         return instance(original);
       });
@@ -65,7 +78,7 @@ instance.interceptors.response.use(
     try {
       // La cookie HttpOnly se envía automáticamente con withCredentials: true.
       // No necesitamos pasar el refresh en el body.
-      const resp = await axios.post(
+      const resp = await axios.post<{ access: string }>(
         `${BASE_URL}/auth/refresh/`,
         {},
         { withCredentials: true, headers: { "Content-Type": "application/json" } },
@@ -77,7 +90,7 @@ instance.interceptors.response.use(
       setAccess(newAccess);
       runQueue(null, newAccess);
 
-      original.headers = original.headers || {};
+      original.headers = original.headers ?? {};
       original.headers.Authorization = `Bearer ${newAccess}`;
       return instance(original);
     } catch (e) {

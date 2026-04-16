@@ -1,5 +1,6 @@
 // AdminUsuarios.jsx
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { getRole } from "../../api/auth";
 import {
   getAdmins,
@@ -30,7 +31,6 @@ export default function AdminUsuarios() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const loadUsers = useCallback(async () => {
@@ -63,7 +63,6 @@ export default function AdminUsuarios() {
     setShowPassword(false);
     if (clearFeedback) {
       setError("");
-      setSuccess("");
     }
   };
 
@@ -89,7 +88,6 @@ export default function AdminUsuarios() {
     } else {
       setError(fallbackMessage);
     }
-    setSuccess("");
   };
 
   const buildPayload = () => {
@@ -129,13 +127,13 @@ export default function AdminUsuarios() {
         // Recargar la lista completa para asegurar consistencia
         const updatedUsers = await getAdmins();
         setUsers(Array.isArray(updatedUsers) ? updatedUsers : []);
-        setSuccess("Usuario actualizado correctamente.");
+        toast.success("Usuario actualizado correctamente.");
       } else {
         await createAdmin(payload);
         // Recargar la lista completa
         const updatedUsers = await getAdmins();
         setUsers(Array.isArray(updatedUsers) ? updatedUsers : []);
-        setSuccess("Usuario creado correctamente.");
+        toast.success("Usuario creado correctamente.");
       }
 
       resetForm({ clearFeedback: false });
@@ -187,7 +185,7 @@ export default function AdminUsuarios() {
       // Recargar la lista completa para asegurar consistencia
       const updatedUsers = await getAdmins();
       setUsers(Array.isArray(updatedUsers) ? updatedUsers : []);
-      setSuccess("Usuario eliminado correctamente.");
+      toast.success("Usuario eliminado correctamente.");
       setError("");
       if (editingId === id) resetForm();
     } catch (err) {
@@ -348,9 +346,6 @@ export default function AdminUsuarios() {
 
           {error && (
             <div style={{ color: "#b42318", fontWeight: 700 }}>{error}</div>
-          )}
-          {success && (
-            <div style={{ color: "#166534", fontWeight: 700 }}>{success}</div>
           )}
 
           <button type="submit" disabled={saving} style={submitBtnStyle}>

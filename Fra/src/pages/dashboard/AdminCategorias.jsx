@@ -1,7 +1,6 @@
-// AdminCategorias.jsx
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../../api/categories";
-
 
 const EMPTY_FORM = {
   nombre: "",
@@ -15,31 +14,29 @@ export default function AdminCategorias() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  // ── Simulación de datos locales (sin back aún) ──────────────────────
   const nextId = useRef(1);
 
   const loadData = async () => {
-  setLoading(true);
-  try {
-    const data = await getCategories();
-    setCategories(Array.isArray(data) ? data : []);
-  } catch {
-    setError("No se pudieron cargar las categorías.");
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    try {
+      const data = await getCategories();
+      setCategories(Array.isArray(data) ? data : []);
+    } catch {
+      toast.error("No se pudieron cargar las categorías.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, []);
 
-  const resetForm = ({ clearFeedback = true } = {}) => {
+  const resetForm = () => {
     setForm(EMPTY_FORM);
     setEditingId(null);
     setError("");
-    if (clearFeedback) setSuccess("");
   };
 
   const validate = () => {
@@ -57,20 +54,17 @@ export default function AdminCategorias() {
     const validationError = validate();
     if (validationError) {
       setError(validationError);
-      setSuccess("");
       return;
     }
 
     setSaving(true);
     setError("");
-    setSuccess("");
 
     if (editingId) await updateCategory(editingId, { nombre: form.nombre.trim(), descripcion: form.descripcion.trim() });
     else await createCategory({ nombre: form.nombre.trim(), descripcion: form.descripcion.trim() });
 
-await loadData();
-   
-    await new Promise((r) => setTimeout(r, 300)); // simula latencia
+    await loadData();
+    await new Promise((r) => setTimeout(r, 300));
 
     if (editingId) {
       setCategories((prev) =>
@@ -78,7 +72,7 @@ await loadData();
           c.id === editingId ? { ...c, nombre: form.nombre.trim(), descripcion: form.descripcion.trim() } : c
         )
       );
-      setSuccess("Categoría actualizada.");
+      toast.success("Categoría actualizada.");
     } else {
       const newCat = {
         id: nextId.current++,
@@ -86,30 +80,32 @@ await loadData();
         descripcion: form.descripcion.trim(),
       };
       setCategories((prev) => [...prev, newCat]);
-      setSuccess("Categoría creada.");
+      toast.success("Categoría creada.");
     }
 
     setSaving(false);
-    resetForm({ clearFeedback: false });
+    resetForm();
   };
 
   const handleEdit = (cat) => {
     setEditingId(cat.id);
     setForm({ nombre: cat.nombre || "", descripcion: cat.descripcion || "" });
     setError("");
-    setSuccess("");
   };
 
   const handleDelete = async (id) => {
     const ok = window.confirm("Se eliminará esta categoría. ¿Deseas continuar?");
     if (!ok) return;
 
-    await deleteCategory(id);
-    await loadData();
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-    if (editingId === id) resetForm();
-    setSuccess("Categoría eliminada.");
-    setError("");
+    try {
+      await deleteCategory(id);
+      await loadData();
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+      if (editingId === id) resetForm();
+      toast.success("Categoría eliminada.");
+    } catch {
+      toast.error("No se pudo eliminar la categoría.");
+    }
   };
 
   return (
@@ -147,8 +143,7 @@ await loadData();
             />
           </div>
 
-          {error   && <div style={{ color: "#b42318", fontWeight: 700 }}>{error}</div>}
-          {success && <div style={{ color: "#166534", fontWeight: 700 }}>{success}</div>}
+          {error && <div style={{ color: "#b42318", fontWeight: 700 }}>{error}</div>}
 
           <button type="submit" disabled={saving} style={submitBtnStyle}>
             {saving ? "Guardando..." : editingId ? "Actualizar categoría" : "Crear categoría"}

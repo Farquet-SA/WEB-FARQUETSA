@@ -126,7 +126,157 @@ python manage.py test catalogo
 
 ---
 
-## Prioridad Baja — Pendientes
+## Prioridad Baja — Completadas
 
-- [ ] TypeScript progresivo
-- [ ] Sistema de toast centralizado (sonner / react-hot-toast)
+### 8. TypeScript progresivo — Setup inicial + migración de capa API
+**Archivos:** `Fra/tsconfig.json` (nuevo), `Fra/tsconfig.node.json` (nuevo), `Fra/src/vite-env.d.ts` (nuevo), `Fra/src/api/tokens.ts` (reemplaza `.js`), `Fra/src/api/auth.ts` (reemplaza `.js`), `Fra/src/api/axios.ts` (reemplaza `.js`)
+
+**Qué se hizo:**
+
+**Configuración TypeScript:**
+- `tsconfig.json`: `strict: true`, `allowJs: true`, `checkJs: false`. Así los archivos `.ts` nuevos tienen tipo completo, y los `.jsx/.js` existentes siguen compilando sin errores hasta que se migren progresivamente. Se incluyen los mismos path aliases que Vite (`@`, `@api`, `@components`, etc.).
+- `tsconfig.node.json`: configuración separada para `vite.config.js` (requerido por la referencia de proyecto).
+- `vite-env.d.ts`: referencia `/// <reference types="vite/client" />` que habilita tipos para `import.meta.env.VITE_*`.
+
+**Migración `tokens.ts`:**
+- Tipos explícitos en todas las funciones (`string | null`, `string`, `void`).
+- Constantes con `as const` para prevenir reasignación accidental.
+
+**Migración `auth.ts`:**
+- Interfaces exportadas `AdminUser` y `LoginResult` — definen el contrato entre el frontend y los endpoints `/auth/me/` y `/auth/login/`.
+- Todos los parámetros y retornos tipados.
+
+**Migración `axios.ts`:**
+- Tipo `RetryableConfig` (extensión de `InternalAxiosRequestConfig`) para el flag interno `_retry` del interceptor de refresh.
+- Cola `queue` tipada con `{ resolve, reject }` explícitos.
+- `error` del interceptor casteado a tipo anónimo con los campos usados, evitando `any` generalizado.
+
+**Qué falta para completar la migración (pasos siguientes):**
+1. Migrar `Fra/src/api/*.js` restantes (`products`, `categories`, `servicios`, `admin`, `contacto`, `historial`)
+2. Migrar componentes reutilizables (`ProductCard`, `CartDrawer`, `PrivateRoute`)
+3. Migrar páginas del dashboard
+4. Migrar test files (`.test.js` → `.test.ts`)
+
+> Los archivos `.jsx` y los tests `.js` siguen funcionando sin cambios gracias a `allowJs: true`.
+
+---
+
+### 9. Sistema de toast centralizado (sonner)
+**Archivos:** `Fra/package.json`, `Fra/src/App.jsx`, `Fra/src/pages/Contacto.jsx`, `Fra/src/pages/dashboard/AdminCategorias.jsx`, `Fra/src/pages/dashboard/AdminProductos.jsx`, `Fra/src/pages/dashboard/AdminServicios.jsx`, `Fra/src/pages/dashboard/AdminUsuarios.jsx`
+
+**Qué se hizo:**
+
+**Setup:**
+- `package.json`: agregado `"sonner": "^1.4.0"` a dependencias.
+- `App.jsx`: agregado `<Toaster position="top-right" richColors />` justo antes de cerrar `<BrowserRouter>`. Un solo punto de montaje para toda la app.
+
+**Criterio aplicado:**
+- **Errores de validación de formulario** → siguen como `setState` inline (persisten visibles hasta que el usuario corrija el campo).
+- **Resultados de operaciones** (crear/actualizar/eliminar exitoso, errores de servidor) → `toast.success` / `toast.error` (se auto-descartan, no contaminan el formulario).
+
+**`Contacto.jsx`:**
+- Reemplazados los dos `alert()` (`alert(data.message)` y `alert("Error al enviar mensaje")`) por `toast.success(...)` y `toast.error(...)`.
+
+**`AdminCategorias.jsx`:**
+- Eliminado estado `success` y el div `{success && ...}` del JSX.
+- Errores de carga y operaciones → `toast.error(...)`.
+- Confirmaciones de CRUD → `toast.success(...)`.
+- Agregado `try/catch` faltante en `handleDelete` (antes el error de red era silencioso).
+
+**`AdminProductos.jsx`:**
+- Eliminado estado `success` y su div del JSX.
+- Éxito de crear/actualizar/eliminar → `toast.success(...)`.
+- Error de eliminar → `toast.error(...)`.
+- Errores de validación y de imagen (respuesta del servidor) siguen en `setError` inline.
+
+**`AdminServicios.jsx`:**
+- Eliminado estado `success` y su `<p>` del JSX.
+- Todos los mensajes de éxito y errores de red → toast.
+
+**`AdminUsuarios.jsx`:**
+- Eliminado estado `success` y su div del JSX.
+- Mensajes de éxito de CRUD → `toast.success(...)`.
+- Errores de operación conservados en `setError` inline (contienen mensajes con contexto: sesión expirada, permisos insuficientes).
+
+> **Requiere instalación de dependencias:**
+> ```bash
+> cd Fra && npm install
+> ```
+
+---
+
+## Análisis de arquitectura de carpetas
+
+### Estructura actual
+
+```
+WEB-FARQUETSA/
+├── BAC/
+│   ├── backend/          ← paquete de configuración Django (settings, urls, wsgi, asgi)
+│   └── catalogo/         ← única app Django
+│       ├── models.py
+│       ├── views.py
+│       ├── serializers.py
+│       ├── permissions.py
+│       ├── urls.py
+│       ├── cloudinary_service.py
+│       └── tests.py
+├── Fra/
+│   ├── src/
+│   │   ├── api/          ← capa HTTP (un archivo por entidad)
+│   │   ├── components/   ← componentes reutilizables
+│   │   ├── context/      ← estado global
+│   │   ├── layouts/      ← wrappers de layout
+│   │   └── pages/
+│   │       ├── *.jsx     ← páginas públicas
+│   │       └── dashboard/← páginas del panel admin
+│   ├── tsconfig.json     ← nuevo
+│   └── vite.config.js
+├── correccion.md
+├── reglas.md
+└── index.html            ← ⚠️ ver nota abajo
+```
+
+---
+
+### Evaluación por capa
+
+#### Backend (BAC/) — Bien estructurado para el tamaño actual
+
+| Aspecto | Estado | Comentario |
+|---|---|---|
+| Separación config / lógica | ✅ | `backend/` para config, `catalogo/` para lógica de negocio |
+| `cloudinary_service.py` separado | ✅ | Terceros encapsulados fuera de views |
+| `permissions.py` separado | ✅ | Roles explícitos, no mezclados en views |
+| Nombre del paquete config | ⚠️ | `backend/` es genérico — convención Django es usar el nombre del proyecto (ej. `farquetsa/`). Funciona pero puede confundir en equipos |
+| Un solo app `catalogo` | ⚠️ | Con 8 modelos y vistas heterogéneas (productos, servicios, auth, contacto) ya empieza a mezclar responsabilidades. Si el proyecto crece, considerar split en `productos/`, `servicios/`, `auth/` |
+| `tests.py` en la app | ✅ | Correcto para el tamaño actual |
+
+#### Frontend (Fra/src/) — Bien estructurado, detalles menores
+
+| Aspecto | Estado | Comentario |
+|---|---|---|
+| Separación api/components/context/layouts/pages | ✅ | Clara y consistente |
+| Tests co-localizados | ✅ | `auth.test.js` junto a `auth.ts`, `CartContext.test.jsx` junto a `CartContext.jsx` — convención correcta |
+| `pages/dashboard/` | ✅ | Apropiado para el tamaño del panel admin actual |
+| CSS mixto | ⚠️ | Algunos componentes tienen su propio `.css` (navbar, historial, productCard), otros usan inline styles. No rompe nada, pero es inconsistente. Decisión: unificar en una dirección (CSS modules o todo inline) |
+| Sin `src/types/` | ⚠️ | Necesario para centralizar las interfaces TypeScript a medida que la migración avance. Crear `Fra/src/types/api.ts` con `AdminUser`, `Producto`, `Categoria`, etc. |
+| `App.css` | ⚠️ | Parece mínimo o vacío. Evaluar si puede fusionarse con `index.css` o eliminarse |
+
+#### Raíz del repositorio — Un elemento a limpiar
+
+| Aspecto | Estado | Comentario |
+|---|---|---|
+| `BAC/` y `Fra/` bien separados | ✅ | Monorepo con límites claros |
+| `correccion.md` y `reglas.md` | ✅ | Documentación de arquitectura en la raíz |
+| `index.html` en la raíz | ⚠️ | Es una copia del `Fra/index.html` (referencia a `/src/main.jsx` que no existe desde la raíz). Es un archivo residual de cuando la estructura era diferente. **Acción recomendada: eliminar** — no cumple ninguna función y puede confundir al abrirlo directamente |
+
+---
+
+### Veredicto general
+
+La arquitectura está **bien dimensionada para el proyecto**. No hay sobre-ingeniería ni sub-estructura. Las tres mejoras reales pendientes son:
+
+1. **Crear `Fra/src/types/`** cuando la migración TypeScript llegue a los componentes — un lugar central para las interfaces del API.
+2. **Evaluar split de `catalogo/`** si se agregan más entidades al backend — actualmente mezcla autenticación, productos, servicios y contacto.
+3. **Eliminar `index.html` de la raíz** — archivo residual sin función.

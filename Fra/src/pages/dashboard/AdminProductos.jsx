@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   createProduct,
   deleteProduct,
@@ -39,7 +40,6 @@ export default function AdminProductos() {
   const [preview, setPreview] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const categoryMap = useMemo(
     () => new Map(categories.map((item) => [String(item.id), item.nombre])),
@@ -51,7 +51,6 @@ export default function AdminProductos() {
     setEditingId(null);
     setPreview("");
     setError("");
-    if (clearFeedback) setSuccess("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -88,24 +87,20 @@ export default function AdminProductos() {
 
     if (!editingId && !hasSelectedFile) {
       setError("Debes seleccionar una imagen antes de crear el producto.");
-      setSuccess("");
       return;
     }
 
     if (isNaN(precioNum) || precioNum <= 0) {
       setError("El precio debe ser mayor a Q0.00.");
-      setSuccess("");
       return;
     }
     if (precioNum > 999999) {
       setError("El precio no puede superar Q999,999.00.");
-      setSuccess("");
       return;
     }
 
     setSaving(true);
     setError("");
-    setSuccess("");
 
     try {
       let imageUrl = payload.imagen;
@@ -119,9 +114,9 @@ export default function AdminProductos() {
       if (editingId) await updateProduct(editingId, productPayload);
       else await createProduct(productPayload);
 
-      resetForm({ clearFeedback: false });
+      resetForm();
       await queryClient.invalidateQueries({ queryKey: ["productos"] });
-      setSuccess(editingId ? "Producto actualizado." : "Producto creado.");
+      toast.success(editingId ? "Producto actualizado." : "Producto creado.");
     } catch (err) {
       const detail =
         err?.response?.data?.imagen_file?.[0] ||
@@ -161,13 +156,12 @@ export default function AdminProductos() {
 
     try {
       setError("");
-      setSuccess("");
       await deleteProduct(id);
       if (editingId === id) resetForm();
       await queryClient.invalidateQueries({ queryKey: ["productos"] });
-      setSuccess("Producto eliminado.");
+      toast.success("Producto eliminado.");
     } catch {
-      setError("No se pudo eliminar el producto.");
+      toast.error("No se pudo eliminar el producto.");
     }
   };
 
@@ -359,9 +353,6 @@ export default function AdminProductos() {
 
           {error && (
             <div style={{ color: "#b42318", fontWeight: 700 }}>{error}</div>
-          )}
-          {success && (
-            <div style={{ color: "#166534", fontWeight: 700 }}>{success}</div>
           )}
 
           <button
