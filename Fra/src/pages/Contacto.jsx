@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { enviarContacto } from "../api/contacto";
 
 export default function Contacto() {
@@ -18,15 +19,14 @@ export default function Contacto() {
         mensaje,
       });
 
-      alert(data.message);
-
+      toast.success(data.message || "Mensaje enviado correctamente.");
       setNombre("");
       setApellido("");
       setEmail("");
       setMensaje("");
     } catch (error) {
       console.error(error);
-      alert("Error al enviar mensaje");
+      toast.error("Error al enviar mensaje. Intenta de nuevo.");
     }
   };
 

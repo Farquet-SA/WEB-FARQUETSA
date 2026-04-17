@@ -1,5 +1,3 @@
-from urllib import request, response
-
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.views import APIView
@@ -9,6 +7,9 @@ from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.mail import send_mail
@@ -23,6 +24,84 @@ from django.utils import timezone
 from .models import Producto, Categoria, ImagenInformacion, Servicio, PasoProceso, Confianza, Historial, ConfiguracionSistema
 from .serializers import ProductoSerializer, CategoriaSerializer, ImagenInformacionSerializer, ServicioSerializer, PasoProcesoSerializer, ConfianzaSerializer
 from .cloudinary_service import upload_product_image
+
+
+COOKIE_NAME = settings.SIMPLE_JWT_REFRESH_COOKIE
+
+
+def _set_refresh_cookie(response, refresh_token):
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=str(refresh_token),
+        httponly=True,
+        secure=not settings.DEBUG,
+        samesite="Strict",
+        max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+        path="/api/auth/",
+    )
+
+
+class CookieLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = TokenObtainPairSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        access = serializer.validated_data["access"]
+        refresh = serializer.validated_data["refresh"]
+
+        resp = Response({"access": str(access)}, status=status.HTTP_200_OK)
+        _set_refresh_cookie(resp, refresh)
+        return resp
+
+
+class CookieRefreshView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get(COOKIE_NAME)
+        if not refresh_token:
+            return Response(
+                {"detail": "No refresh token."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        serializer = TokenRefreshSerializer(data={"refresh": refresh_token})
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            resp = Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+            resp.delete_cookie(COOKIE_NAME, path="/api/auth/")
+            return resp
+
+        access = serializer.validated_data["access"]
+        new_refresh = serializer.validated_data.get("refresh")
+
+        resp = Response({"access": str(access)}, status=status.HTTP_200_OK)
+        if new_refresh:
+            _set_refresh_cookie(resp, new_refresh)
+        return resp
+
+
+class LogoutView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get(COOKIE_NAME)
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except TokenError:
+                pass
+
+        resp = Response({"detail": "Sesión cerrada."}, status=status.HTTP_200_OK)
+        resp.delete_cookie(COOKIE_NAME, path="/api/auth/")
+        return resp
 
 
 class CategoriaViewSet(ModelViewSet):

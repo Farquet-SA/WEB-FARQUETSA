@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   createProduct,
   deleteProduct,
@@ -20,50 +22,35 @@ const EMPTY_FORM = {
 };
 
 export default function AdminProductos() {
+  const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ["productos"],
+    queryFn: getProducts,
+  });
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categorias"],
+    queryFn: getCategories,
+  });
+
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState("");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const categoryMap = useMemo(
     () => new Map(categories.map((item) => [String(item.id), item.nombre])),
     [categories],
   );
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const [productData, categoryData] = await Promise.all([
-        getProducts(),
-        getCategories(),
-      ]);
-      setProducts(Array.isArray(productData) ? productData : []);
-      setCategories(Array.isArray(categoryData) ? categoryData : []);
-    } catch {
-      setError("No se pudieron cargar los productos.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const resetForm = ({ clearFeedback = true } = {}) => {
     setForm(EMPTY_FORM);
     setEditingId(null);
     setPreview("");
     setError("");
-    if (clearFeedback) setSuccess("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -92,6 +79,7 @@ export default function AdminProductos() {
       },
     };
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const { payload, hasSelectedFile, currentFile } = buildPayload();
@@ -99,24 +87,20 @@ export default function AdminProductos() {
 
     if (!editingId && !hasSelectedFile) {
       setError("Debes seleccionar una imagen antes de crear el producto.");
-      setSuccess("");
       return;
     }
 
     if (isNaN(precioNum) || precioNum <= 0) {
       setError("El precio debe ser mayor a Q0.00.");
-      setSuccess("");
       return;
     }
     if (precioNum > 999999) {
       setError("El precio no puede superar Q999,999.00.");
-      setSuccess("");
       return;
     }
 
     setSaving(true);
     setError("");
-    setSuccess("");
 
     try {
       let imageUrl = payload.imagen;
@@ -125,17 +109,14 @@ export default function AdminProductos() {
         imageUrl = await uploadProductImage(currentFile);
       }
 
-      const productPayload = {
-        ...payload,
-        imagen: imageUrl,
-      };
+      const productPayload = { ...payload, imagen: imageUrl };
 
       if (editingId) await updateProduct(editingId, productPayload);
       else await createProduct(productPayload);
 
-      resetForm({ clearFeedback: false });
-      await loadData();
-      setSuccess(editingId ? "Producto actualizado." : "Producto creado.");
+      resetForm();
+      await queryClient.invalidateQueries({ queryKey: ["productos"] });
+      toast.success(editingId ? "Producto actualizado." : "Producto creado.");
     } catch (err) {
       const detail =
         err?.response?.data?.imagen_file?.[0] ||
@@ -175,13 +156,12 @@ export default function AdminProductos() {
 
     try {
       setError("");
-      setSuccess("");
       await deleteProduct(id);
       if (editingId === id) resetForm();
-      await loadData();
-      setSuccess("Producto eliminado.");
+      await queryClient.invalidateQueries({ queryKey: ["productos"] });
+      toast.success("Producto eliminado.");
     } catch {
-      setError("No se pudo eliminar el producto.");
+      toast.error("No se pudo eliminar el producto.");
     }
   };
 
@@ -374,9 +354,6 @@ export default function AdminProductos() {
           {error && (
             <div style={{ color: "#b42318", fontWeight: 700 }}>{error}</div>
           )}
-          {success && (
-            <div style={{ color: "#166534", fontWeight: 700 }}>{success}</div>
-          )}
 
           <button
             type="submit"
@@ -410,12 +387,12 @@ export default function AdminProductos() {
       >
         <h2 style={{ margin: 0, color: "#0b2b4b" }}>Listado actual</h2>
         <p style={{ color: "#5c6b7b", marginTop: 8 }}>
-          {loading
+          {isLoading
             ? "Cargando..."
             : `${products.length} producto(s) registrados`}
         </p>
 
-        {loading ? (
+        {isLoading ? (
           <div style={emptyBoxStyle}>Cargando productos...</div>
         ) : products.length === 0 ? (
           <div style={emptyBoxStyle}>No hay productos creados todavia.</div>
