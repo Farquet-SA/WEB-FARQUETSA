@@ -103,6 +103,7 @@ export default function Historial() {
       <h2>Historial de acciones</h2>
 
       <div className="historial-layout">
+        <div className="historial-tabla-wrapper">
         <table className="historial-tabla">
           <thead>
             <tr>
@@ -131,6 +132,7 @@ export default function Historial() {
             )}
           </tbody>
         </table>
+        </div>
 
         <div className="historial-panel">
           <div className="filtros">

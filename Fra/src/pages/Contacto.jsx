@@ -32,7 +32,7 @@ export default function Contacto() {
 
   return (
     <div className="section">
-      <div className="container" style={{ textAlign: "left" }}>
+      <div className="container">
         <h1 style={{ textAlign: "center", marginBottom: 12 }}>Contacto</h1>
 
         <p
@@ -115,83 +115,45 @@ export default function Contacto() {
 
           <p
             className="muted"
-            style={{
-              textAlign: "center",
-              marginBottom: 24,
-            }}
+            style={{ textAlign: "center", marginBottom: 24 }}
           >
             Envíanos tu consulta, cotización o solicitud.
           </p>
 
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              maxWidth: "750px",
-              margin: "0 auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: "18px",
-              padding: "32px",
-              background: "var(--card)",
-              borderRadius: "var(--r)",
-              boxShadow: "var(--shadow)",
-              border: "1px solid var(--border)",
-            }}
-          >
+          <form className="contactForm" onSubmit={handleSubmit}>
             <input
+              className="contactInput"
               type="text"
               placeholder="Nombre*"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                borderRadius: "14px",
-                border: "1px solid var(--border)",
-                fontSize: "16px",
-              }}
             />
 
             <input
+              className="contactInput"
               type="text"
               placeholder="Apellido*"
               value={apellido}
               onChange={(e) => setApellido(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                borderRadius: "14px",
-                border: "1px solid var(--border)",
-                fontSize: "16px",
-              }}
             />
 
             <input
+              className="contactInput"
               type="email"
               placeholder="Email*"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                borderRadius: "14px",
-                border: "1px solid var(--border)",
-                fontSize: "16px",
-              }}
             />
 
             <textarea
+              className="contactInput contactTextarea"
               rows={6}
               placeholder="Mensaje"
               value={mensaje}
               onChange={(e) => setMensaje(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                borderRadius: "14px",
-                border: "1px solid var(--border)",
-                resize: "none",
-                fontSize: "16px",
-              }}
             />
 
-            <div style={{ textAlign: "center", marginTop: 8 }}>
+            <div className="contactFormActions">
               <button type="submit" className="btnPrimary">
                 Enviar
               </button>
@@ -201,11 +163,7 @@ export default function Contacto() {
 
         <p
           className="muted"
-          style={{
-            marginTop: 40,
-            textAlign: "center",
-            lineHeight: 1.6,
-          }}
+          style={{ marginTop: 40, textAlign: "center", lineHeight: 1.6 }}
         >
           Para cotizaciones, abastecimiento o información adicional, puedes
           comunicarte con nuestro equipo a través de los canales indicados.

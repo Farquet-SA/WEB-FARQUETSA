@@ -274,6 +274,15 @@
 .cdWhats.disabled{ opacity:.55; pointer-events:none; box-shadow:none; }
 
 /* Responsive */
+@media (max-width: 640px){
+  .cdDrawer{ width: calc(100vw - 12px); max-width: calc(100vw - 12px); }
+  .cdItem{
+    grid-template-columns: 48px 1fr auto;
+    gap: 8px;
+  }
+  .cdThumb{ width:48px; height:48px; }
+}
+
 @media (max-width: 420px){
   .cdDrawer{ width: 100vw; max-width: 100vw; }
 }

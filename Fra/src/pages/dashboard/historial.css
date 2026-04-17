@@ -216,3 +216,68 @@
 .modal-confirmar:hover {
   background-color: #b71c1c;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .historial-container {
+    padding: 14px;
+  }
+
+  .historial-layout {
+    flex-direction: column;
+  }
+
+  .historial-panel {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: unset;
+    width: 100%;
+  }
+
+  .filtros {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .btn-filtro,
+  .btn-pdf {
+    flex: 1 1 auto;
+    min-width: 100px;
+  }
+
+  .limpieza {
+    width: 100%;
+  }
+
+  /* Tabla con scroll horizontal */
+  .historial-tabla-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .historial-tabla {
+    min-width: 540px;
+  }
+}
+
+@media (max-width: 480px) {
+  .historial-container h2 {
+    font-size: 18px;
+  }
+
+  .modal {
+    padding: 20px 16px;
+  }
+
+  .modal-acciones {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-cancelar,
+  .modal-confirmar {
+    width: 100%;
+    text-align: center;
+  }
+}
