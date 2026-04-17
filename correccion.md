@@ -275,8 +275,54 @@ WEB-FARQUETSA/
 
 ### Veredicto general
 
-La arquitectura está **bien dimensionada para el proyecto**. No hay sobre-ingeniería ni sub-estructura. Las tres mejoras reales pendientes son:
+La arquitectura está **bien dimensionada para el proyecto**. No hay sobre-ingeniería ni sub-estructura. Las tres mejoras reales pendientes eran:
 
-1. **Crear `Fra/src/types/`** cuando la migración TypeScript llegue a los componentes — un lugar central para las interfaces del API.
-2. **Evaluar split de `catalogo/`** si se agregan más entidades al backend — actualmente mezcla autenticación, productos, servicios y contacto.
-3. **Eliminar `index.html` de la raíz** — archivo residual sin función.
+1. ✅ **`Fra/src/types/api.ts` creado** — Interfaces centrales: `Producto`, `Categoria`, `Servicio`, `PasoProceso`, `Confianza`, `ImagenInformacion`, `Historial`, `ConfiguracionSistema`, `ContactoPayload`. Re-exporta `AdminUser` y `LoginResult` desde `api/auth.ts`.
+2. **Evaluación del split de `catalogo/`** — App Django única con 7 modelos: `Categoria`, `Producto`, `ImagenInformacion`, `Historial`, `ConfiguracionSistema`, `Servicio`, `PasoProceso`, `Confianza`. **Veredicto: no dividir aún.** El volumen es manejable y todos los modelos comparten el mismo serializer layer y permisos. Split recomendado solo si se agregan nuevas entidades de dominio claramente separado (ej. facturación, inventario independiente).
+3. ✅ **`index.html` de la raíz eliminado** — ya no existe el archivo residual.
+
+---
+
+## Acciones ejecutadas (2026-04-16)
+
+Las tres recomendaciones anteriores se ejecutaron:
+
+### 1. `Fra/src/types/` creada ✅
+
+Archivo: `Fra/src/types/api.ts`
+
+Centraliza todos los contratos del API en un solo lugar, agrupados por dominio:
+
+| Grupo | Interfaces / tipos |
+|---|---|
+| Auth | `AdminUser`, `LoginResult` |
+| Catálogo | `Categoria`, `Producto`, `EstadoProducto` |
+| Contenido web | `Servicio`, `PasoProceso`, `Confianza` |
+| Imágenes | `ImagenInformacion` |
+| Historial | `RegistroHistorial`, `ModuloHistorial` |
+
+`auth.ts` se actualizó para re-exportar `AdminUser` y `LoginResult` desde `../types/api` — sin cambio de API pública hacia los consumidores.
+
+---
+
+### 2. Evaluación del split de `BAC/catalogo/` ✅
+
+Se analizaron `models.py` y `urls.py`. El app registra 9 ViewSets/Views en un solo router. Los modelos se agrupan en 5 dominios lógicos:
+
+| Dominio | Modelos / vistas |
+|---|---|
+| Autenticación | `AdminViewSet` (usa `User` de Django) |
+| Catálogo | `Categoria`, `Producto`, `ImagenInformacionViewSet`, `ProductImageUploadView` |
+| Contenido web | `Servicio`, `PasoProceso`, `Confianza` |
+| Sistema | `Historial`, `ConfiguracionSistema` |
+| Contacto | `ContactoView` |
+
+**Veredicto: no dividir aún.**
+
+El app tiene 128 líneas en `models.py` y 34 en `urls.py`. El costo de un split (nuevas migraciones, actualizar `INSTALLED_APPS`, ajustar imports en serializers/views) supera el beneficio a este tamaño. El trigger para dividir sería que alguno de los dominios crezca en modelos o necesite su propia política de permisos. Recomendación concreta: si se agregan pedidos/cotizaciones al backend, ese sería el primer sub-app independiente (`BAC/pedidos/`).
+
+---
+
+### 3. `index.html` de la raíz eliminado ✅
+
+El archivo era una copia exacta de `Fra/index.html` con una referencia rota a `/src/main.jsx`. No servía ninguna función y podía confundir al abrirlo directamente desde el explorador.
