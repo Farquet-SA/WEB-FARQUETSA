@@ -7,21 +7,9 @@ import {
   getAccess,
   setAccess,
 } from "./tokens";
+import type { AdminUser, LoginResult } from "../types/api";
 
-export interface AdminUser {
-  id: number;
-  username: string;
-  email: string;
-  is_staff: boolean;
-  is_superuser: boolean;
-  is_active: boolean;
-  role?: string;
-}
-
-export interface LoginResult {
-  access: string;
-  me: AdminUser;
-}
+export type { AdminUser, LoginResult };
 
 export async function login(
   username: string,
