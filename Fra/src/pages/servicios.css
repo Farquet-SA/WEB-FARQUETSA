@@ -483,6 +483,28 @@ h2 {
   }
 }
 
+@media (max-width: 520px) {
+  .heroStats {
+    grid-template-columns: 1fr;
+  }
+
+  .processGrid {
+    grid-template-columns: 1fr;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  .ctaPanel {
+    gap: 12px;
+  }
+
+  .servicesHero {
+    padding: 44px 0 28px;
+  }
+}
+
 /* Accesibilidad: reduce motion */
 @media (prefers-reduced-motion: reduce) {
   .techBg .grid,

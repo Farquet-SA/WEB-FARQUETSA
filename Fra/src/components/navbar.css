@@ -91,3 +91,65 @@
   font-size:11px;
   font-weight:700;
 }
+
+/* Hamburger button — hidden on desktop */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  background:none;
+  border:1px solid #dbe7f7;
+  border-radius:10px;
+  width:40px;
+  height:40px;
+  cursor:pointer;
+  padding:0;
+  flex-shrink:0;
+}
+.ham-line{
+  display:block;
+  width:18px;
+  height:2px;
+  background:#0b2b4b;
+  border-radius:2px;
+  transition: transform .22s ease, opacity .22s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px){
+  .navInner{
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .hamburger{ display:flex; }
+
+  .callBtn{ display:none; }
+
+  .brandLogo{ width:52px; height:52px; }
+
+  /* Mobile nav: hidden by default */
+  .navLinks{
+    display:none;
+    width:100%;
+    flex-direction:column;
+    gap:4px;
+    padding:8px 0 4px;
+    border-top:1px solid #e9eef5;
+    order:3;
+  }
+  .navLinks.open{ display:flex; }
+
+  .navLinks a{
+    padding:12px 14px;
+    border-radius:12px;
+    font-size:15px;
+  }
+  .navLinks a.active{
+    background:#edf4ff;
+    color:#0b2b4d;
+  }
+}

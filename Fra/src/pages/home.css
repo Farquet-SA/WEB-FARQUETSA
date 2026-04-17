@@ -476,6 +476,72 @@
   .grid3{ grid-template-columns: 1fr; }
 }
 
+@media (max-width: 520px){
+  .section{ padding: 36px 0; }
+  .heroV2{ min-height: 420px; }
+  .heroContent{ padding: 44px 0 16px; }
+  .heroContent h1{ font-size: 26px; }
+  .heroContent p{ font-size: 14px; }
+  .heroSearch{ border-radius: 12px; }
+  .heroSearch input{ padding: 12px 10px; font-size: 13px; }
+  .btnSearch{ padding: 12px 14px; }
+  .gridProducts{ grid-template-columns: 1fr; }
+  .bigTitle{ font-size: 22px; }
+  .centerHead h2{ font-size: 24px; }
+  .sectionHead{ flex-direction: column; align-items: flex-start; gap: 8px; }
+  .imgCard img{ height: 200px; }
+  .splitActions{ flex-direction: column; }
+  .btnPrimary, .btnOutline{ text-align: center; }
+}
+
+/* ===== CONTACTO ===== */
+.contactForm {
+  max-width: 750px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 32px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--line);
+}
+
+.contactInput {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.contactInput:focus {
+  border-color: rgba(10, 46, 87, 0.35);
+  box-shadow: 0 0 0 3px rgba(10, 46, 87, 0.08);
+}
+
+.contactTextarea {
+  resize: none;
+}
+
+.contactFormActions {
+  text-align: center;
+  margin-top: 8px;
+}
+
+@media (max-width: 520px) {
+  .contactForm {
+    padding: 20px 16px;
+    gap: 14px;
+  }
+}
+
 /* ===== MAPA CONTACTO ===== */
 .mapCard {
   margin-top: 18px;
