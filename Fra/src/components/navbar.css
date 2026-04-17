@@ -18,8 +18,8 @@
 }
 .brand{ display:flex; align-items:center; gap:10px; }
 .brandLogo{
-  width: 48px;
-  height: 48px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
   display: block;
 }

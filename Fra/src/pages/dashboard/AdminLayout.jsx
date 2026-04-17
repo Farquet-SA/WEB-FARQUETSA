@@ -40,20 +40,11 @@ export default function AdminLayout() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 14,
-                background: "#0b2b4b",
-                color: "#fff",
-                display: "grid",
-                placeItems: "center",
-                fontWeight: 900,
-              }}
-            >
-              F
-            </div>
+            <img
+              src="/logo-farquetsa.png"
+              alt="Logo Farquetsa"
+              style={{ width: 72, height: 72, objectFit: "contain", display: "block" }}
+            />
             <div>
               <div style={{ fontWeight: 900, color: "#0b2b4b" }}>
                 Panel Admin
@@ -70,26 +61,18 @@ export default function AdminLayout() {
                 <NavLink to="/admin/productos" style={linkStyle}>Productos</NavLink>
                 <NavLink to="/admin/categorias" style={linkStyle}>Categorías</NavLink>
                 <NavLink to="/admin/servicios" style={linkStyle}>Servicios</NavLink>
-                <NavLink to="/admin/historial" style={linkStyle}>Historial</NavLink>
               </>
             )}
 
             {role === "superadmin" && (
-              <><NavLink to="/admin" end style={linkStyle}>
-                Inicio
-              </NavLink>
-              <NavLink to="/admin/historial" style={linkStyle}>
-                  Historial
-              </NavLink>
-              <NavLink to="/admin/productos" style={linkStyle}>
-                  Productos
-              </NavLink>
-              <NavLink to="/admin/categorias" style={linkStyle}>
-                  Categorías
-              </NavLink>
-              <NavLink to="/admin/usuarios" style={linkStyle}>
-                Usuarios
-              </NavLink></>
+              <>
+                <NavLink to="/admin" end style={linkStyle}>Inicio</NavLink>
+                <NavLink to="/admin/historial" style={linkStyle}>Historial</NavLink>
+                <NavLink to="/admin/productos" style={linkStyle}>Productos</NavLink>
+                <NavLink to="/admin/categorias" style={linkStyle}>Categorías</NavLink>
+                <NavLink to="/admin/servicios" style={linkStyle}>Servicios</NavLink>
+                <NavLink to="/admin/usuarios" style={linkStyle}>Usuarios</NavLink>
+              </>
             )}
 
             <button

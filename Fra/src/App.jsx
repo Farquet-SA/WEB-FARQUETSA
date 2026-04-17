@@ -47,11 +47,11 @@ export default function App() {
               <Route path="productos" element={<AdminProductos />} />
               <Route path="categorias" element={<AdminCategorias />} />
               <Route path="servicios" element={<AdminServicios />} />
-              <Route path="historial" element={<Historial />} />
 
               <Route
                 element={<PrivateRoute allowedRoles={["superadmin"]} />}
               >
+                <Route path="historial" element={<Historial />} />
                 <Route path="usuarios" element={<AdminUsuarios />} />
               </Route>
             </Route>
