@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import Pagination from "../../components/Pagination";
+import StatusBlock from "../../components/StatusBlock";
 import {
   createProduct,
   deleteProduct,
@@ -20,6 +22,7 @@ const EMPTY_FORM = {
   registro: "",
   presentacion: "",
 };
+const PAGE_SIZE = 10;
 
 export default function AdminProductos() {
   const queryClient = useQueryClient();
@@ -40,13 +43,14 @@ export default function AdminProductos() {
   const [preview, setPreview] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
 
   const categoryMap = useMemo(
     () => new Map(categories.map((item) => [String(item.id), item.nombre])),
     [categories],
   );
 
-  const resetForm = ({ clearFeedback = true } = {}) => {
+  const resetForm = () => {
     setForm(EMPTY_FORM);
     setEditingId(null);
     setPreview("");
@@ -145,7 +149,6 @@ export default function AdminProductos() {
     }
     setPreview(product.imagen || "");
     setError("");
-    setSuccess("");
   };
 
   const handleDelete = async (id) => {
@@ -173,6 +176,13 @@ export default function AdminProductos() {
     }
     setPreview(URL.createObjectURL(file));
   };
+
+  const paginatedProducts = useMemo(() => {
+    const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
+    const safePage = Math.min(page, totalPages);
+    const start = (safePage - 1) * PAGE_SIZE;
+    return products.slice(start, start + PAGE_SIZE);
+  }, [products, page]);
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
@@ -215,104 +225,127 @@ export default function AdminProductos() {
                 color: "#0b2b4b",
               }}
             >
-              Cancelar edicion
+              Cancelar edición
             </button>
           )}
         </div>
 
-        <form
-          ref={formRef}
-          onSubmit={handleSubmit}
-          style={{ display: "grid", gap: 14, marginTop: 18 }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gap: 14,
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            }}
-          >
-            <input
-              value={form.nombre}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, nombre: event.target.value }))
-              }
-              placeholder="Nombre del producto"
-              required
-              style={inputStyle}
-            />
-            <input
-              value={form.precio}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, precio: event.target.value }))
-              }
-              placeholder="Precio"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-              style={inputStyle}
-            />
-            <input
-              value={form.formula}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, formula: e.target.value }))
-              }
-              placeholder="Fórmula"
-              style={inputStyle}
-            />
-            <input
-              value={form.registro}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, registro: e.target.value }))
-              }
-              placeholder="Registro sanitario"
-              style={inputStyle}
-            />
-            <input
-              value={form.presentacion}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, presentacion: e.target.value }))
-              }
-              placeholder="Presentación"
-              style={inputStyle}
-            />
-            <select
-              value={form.categoria}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, categoria: event.target.value }))
-              }
-              style={inputStyle}
-            >
-              <option value="">Sin categoria</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.nombre}
-                </option>
-              ))}
-            </select>
-            <select
-              value={form.estado}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, estado: event.target.value }))
-              }
-              style={inputStyle}
-            >
-              <option value="disponible">Disponible</option>
-              <option value="agotado">Agotado</option>
-              <option value="descontinuado">Descontinuado</option>
-            </select>
+        <form ref={formRef} onSubmit={handleSubmit} className="adminFormGrid">
+          <div className="adminFieldGrid">
+            <div className="adminField">
+              <label htmlFor="producto-nombre">Nombre del producto</label>
+              <input
+                id="producto-nombre"
+                className="adminInput"
+                value={form.nombre}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, nombre: event.target.value }))
+                }
+                placeholder="Ej. Neuroadvance Plus"
+                required
+              />
+            </div>
+            <div className="adminField">
+              <label htmlFor="producto-precio">Precio</label>
+              <input
+                id="producto-precio"
+                className="adminInput"
+                value={form.precio}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, precio: event.target.value }))
+                }
+                placeholder="Q0.00"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+            <div className="adminField">
+              <label htmlFor="producto-formula">Fórmula</label>
+              <input
+                id="producto-formula"
+                className="adminInput"
+                value={form.formula}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, formula: e.target.value }))
+                }
+                placeholder="Principio activo"
+              />
+            </div>
+            <div className="adminField">
+              <label htmlFor="producto-registro">Registro sanitario</label>
+              <input
+                id="producto-registro"
+                className="adminInput"
+                value={form.registro}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, registro: e.target.value }))
+                }
+                placeholder="Número de registro"
+              />
+            </div>
+            <div className="adminField">
+              <label htmlFor="producto-presentacion">Presentación</label>
+              <input
+                id="producto-presentacion"
+                className="adminInput"
+                value={form.presentacion}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, presentacion: e.target.value }))
+                }
+                placeholder="Caja, frasco, cápsulas..."
+              />
+            </div>
+            <div className="adminField">
+              <label htmlFor="producto-categoria">Categoría</label>
+              <select
+                id="producto-categoria"
+                className="adminInput"
+                value={form.categoria}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, categoria: event.target.value }))
+                }
+              >
+                <option value="">Sin categoría</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="adminField">
+              <label htmlFor="producto-estado">Estado</label>
+              <select
+                id="producto-estado"
+                className="adminInput"
+                value={form.estado}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, estado: event.target.value }))
+                }
+              >
+                <option value="disponible">Disponible</option>
+                <option value="agotado">Agotado</option>
+                <option value="descontinuado">Descontinuado</option>
+              </select>
+            </div>
           </div>
 
-          <textarea
-            value={form.descripcion}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, descripcion: event.target.value }))
-            }
-            placeholder="Descripcion"
-            rows={4}
-            style={{ ...inputStyle, resize: "vertical" }}
-          />
+          <div className="adminField">
+            <label htmlFor="producto-descripcion">Descripción</label>
+            <textarea
+              id="producto-descripcion"
+              className="adminInput"
+              value={form.descripcion}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, descripcion: event.target.value }))
+              }
+              placeholder="Descripción visible para el cliente"
+              rows={4}
+              style={{ resize: "vertical" }}
+            />
+          </div>
 
           <div
             style={{
@@ -324,10 +357,11 @@ export default function AdminProductos() {
               alignItems: "start",
             }}
           >
-            <label style={{ color: "#20344f", fontWeight: 700 }}>
+            <label htmlFor="producto-imagen" style={{ color: "#20344f", fontWeight: 700 }}>
               Imagen del producto
             </label>
             <input
+              id="producto-imagen"
               ref={fileInputRef}
               type="file"
               accept="image/*"
@@ -352,7 +386,7 @@ export default function AdminProductos() {
           </div>
 
           {error && (
-            <div style={{ color: "#b42318", fontWeight: 700 }}>{error}</div>
+            <StatusBlock title="Revisa el formulario" message={error} tone="error" icon="!" />
           )}
 
           <button
@@ -393,83 +427,94 @@ export default function AdminProductos() {
         </p>
 
         {isLoading ? (
-          <div style={emptyBoxStyle}>Cargando productos...</div>
+          <StatusBlock
+            title="Cargando productos"
+            message="Estamos consultando el inventario administrativo."
+            tone="loading"
+            icon="..."
+          />
         ) : products.length === 0 ? (
-          <div style={emptyBoxStyle}>No hay productos creados todavia.</div>
+          <StatusBlock
+            title="Aún no hay productos"
+            message="Crea el primer producto para empezar a mostrar el catálogo de Farquetsa."
+            icon="0"
+          />
         ) : (
-          <div style={{ display: "grid", gap: 12, marginTop: 14 }}>
-            {products.map((product) => (
-              <article
-                key={product.id}
-                style={{
-                  border: "1px solid #e5edf7",
-                  borderRadius: 16,
-                  padding: 14,
-                  display: "grid",
-                  gap: 12,
-                  gridTemplateColumns: "92px 1fr auto",
-                  alignItems: "center",
-                }}
-              >
-                <img
-                  src={
-                    product.imagen || "https://via.placeholder.com/92?text=Img"
-                  }
-                  alt={product.nombre}
+          <>
+            <div style={{ display: "grid", gap: 12, marginTop: 14 }}>
+              {paginatedProducts.map((product) => (
+                <article
+                  key={product.id}
                   style={{
-                    width: 92,
-                    height: 92,
-                    objectFit: "cover",
-                    borderRadius: 12,
+                    border: "1px solid #e5edf7",
+                    borderRadius: 16,
+                    padding: 14,
+                    display: "grid",
+                    gap: 12,
+                    gridTemplateColumns: "92px 1fr auto",
+                    alignItems: "center",
                   }}
-                />
+                >
+                  <img
+                    src={
+                      product.imagen || "https://via.placeholder.com/92?text=Img"
+                    }
+                    alt={product.nombre}
+                    style={{
+                      width: 92,
+                      height: 92,
+                      objectFit: "cover",
+                      borderRadius: 12,
+                    }}
+                  />
 
-                <div>
-                  <div style={{ fontWeight: 900, color: "#0b2b4b" }}>
-                    {product.nombre}
+                  <div>
+                    <div style={{ fontWeight: 900, color: "#0b2b4b" }}>
+                      {product.nombre}
+                    </div>
+                    <div style={{ color: "#5c6b7b", marginTop: 4 }}>
+                      {categoryMap.get(String(product.categoria)) ||
+                        product.categoria_nombre ||
+                        "Sin categoría"}
+                    </div>
+                    <div style={{ color: "#20344f", marginTop: 4 }}>
+                      Q{(Number(product.precio) || 0).toFixed(2)} |{" "}
+                      {product.estado}
+                    </div>
                   </div>
-                  <div style={{ color: "#5c6b7b", marginTop: 4 }}>
-                    {categoryMap.get(String(product.categoria)) ||
-                      product.categoria_nombre ||
-                      "Sin categoria"}
-                  </div>
-                  <div style={{ color: "#20344f", marginTop: 4 }}>
-                    Q{(Number(product.precio) || 0).toFixed(2)} |{" "}
-                    {product.estado}
-                  </div>
-                </div>
 
-                <div style={{ display: "grid", gap: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => handleEdit(product)}
-                    style={secondaryBtnStyle}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(product.id)}
-                    style={{ ...secondaryBtnStyle, color: "#b42318" }}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(product)}
+                      style={secondaryBtnStyle}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(product.id)}
+                      style={{ ...secondaryBtnStyle, color: "#b42318" }}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <Pagination
+              page={page}
+              totalItems={products.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setPage}
+              itemLabel="productos"
+            />
+          </>
         )}
       </section>
     </div>
   );
 }
-
-const inputStyle = {
-  padding: 12,
-  borderRadius: 12,
-  border: "1px solid #e5edf7",
-  font: "inherit",
-};
 
 const secondaryBtnStyle = {
   height: 38,
@@ -482,10 +527,3 @@ const secondaryBtnStyle = {
   color: "#0b2b4b",
 };
 
-const emptyBoxStyle = {
-  marginTop: 14,
-  borderRadius: 14,
-  border: "1px dashed #c9d8ee",
-  padding: 16,
-  color: "#5c6b7b",
-};

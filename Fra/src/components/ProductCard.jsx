@@ -41,22 +41,22 @@ export default function ProductCard({ product, onAdd }) {
         </div>
 
         <div className="pBody">
-  <div className="pCategory">{categoria.toUpperCase()}</div>
-  <div className="pTitle">{product.nombre}</div>
-  <div className="pBottom">
-    <div className="pPrice">Q{price.toFixed(2)}</div>
-    <button
-      className="pBtn"
-      disabled={!canAdd}
-      onClick={(e) => { e.stopPropagation(); onAdd?.(product); }}
-    >
-      Agregar
-    </button>
-  </div>
-</div>
-
-
-
+          <div className="pCategory">{categoria.toUpperCase()}</div>
+          <div className="pTitle">{product.nombre}</div>
+          <div className="pBottom">
+            <div className="pPrice">Q{price.toFixed(2)}</div>
+            <button
+              className="pBtn"
+              disabled={!canAdd}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canAdd) onAdd?.(product);
+              }}
+            >
+              {canAdd ? "Agregar" : "No disponible"}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ── Modal ────────────────────────────────────── */}

@@ -3,7 +3,42 @@ from .models import Producto, Categoria, ImagenInformacion, Servicio, PasoProces
 from .cloudinary_service import upload_product_image
 from django.utils.text import slugify
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 
+
+ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+MAX_IMAGE_SIZE_MB = 5
+
+
+def validate_image_upload(value, *, allow_gif=True):
+    if value is None:
+        return value
+
+    allowed_types = ALLOWED_IMAGE_TYPES if allow_gif else ALLOWED_IMAGE_TYPES[:-1]
+    content_type = getattr(value, "content_type", "")
+
+    if content_type not in allowed_types:
+        formats = "JPEG, PNG, WebP o GIF" if allow_gif else "JPG, PNG o WEBP"
+        raise serializers.ValidationError(f"Solo se permiten imágenes en formato {formats}.")
+
+    if value.size > MAX_IMAGE_SIZE_MB * 1024 * 1024:
+        raise serializers.ValidationError(
+            f"La imagen no puede superar {MAX_IMAGE_SIZE_MB}MB."
+        )
+
+    return value
+
+
+class ContactoSerializer(serializers.Serializer):
+    nombre = serializers.CharField(max_length=80, trim_whitespace=True)
+    apellido = serializers.CharField(max_length=80, trim_whitespace=True)
+    email = serializers.EmailField(max_length=254)
+    mensaje = serializers.CharField(max_length=2000, trim_whitespace=True)
+
+    def validate_mensaje(self, value):
+        if len(value.strip()) < 10:
+            raise serializers.ValidationError("El mensaje debe tener al menos 10 caracteres.")
+        return value
 
 
 
@@ -53,17 +88,10 @@ class ProductoSerializer(serializers.ModelSerializer):
             )
         
         if image_file:
-            content_type = getattr(image_file, "content_type", "")
-            if not content_type.startswith("image/"):
-                raise serializers.ValidationError(
-                    {"imagen_file": "Solo se permiten archivos de imagen."}
-                )
-            
-            max_size = 5 * 1024 * 1024  # 5 MB
-            if image_file.size > max_size:
-                raise serializers.ValidationError(
-                    {"imagen_file": "La imagen no puede superar 5 MB."}
-                )
+            try:
+                validate_image_upload(image_file)
+            except serializers.ValidationError as exc:
+                raise serializers.ValidationError({"imagen_file": exc.detail})
         return attrs
 
     def create(self, validated_data):
@@ -79,7 +107,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
       
-    def validate_price(self, value):
+    def validate_precio(self, value):
         if value <= 0:
             raise serializers.ValidationError("El precio debe ser mayor a Q0.00.")
         if value > 999_999:
@@ -91,18 +119,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         if value is None:
             return value
 
-        allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
-        max_size_mb = 5
-
-        if value.content_type not in allowed_types:
-            raise serializers.ValidationError(
-                "Solo se permiten imágenes en formato JPEG, PNG, WebP o GIF."
-                )
-        if value.size > max_size_mb * 1024 * 1024:
-            raise serializers.ValidationError(
-            f"La imagen no puede superar {max_size_mb}MB."
-            )
-        return value
+        return validate_image_upload(value)
 
 
 class AdminSerializer(serializers.ModelSerializer):
@@ -119,6 +136,8 @@ class AdminSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Solo los superadministradores pueden crear superusuarios.")
 
         password = validated_data.pop("password", None)
+        if password:
+            validate_password(password)
 
         user = User(**validated_data)
         if password:
@@ -141,6 +160,7 @@ class AdminSerializer(serializers.ModelSerializer):
 
         password = validated_data.pop("password", None)
         if password:
+            validate_password(password, user=instance)
             instance.set_password(password)
         
         return super().update(instance, validated_data)
@@ -163,22 +183,10 @@ class ImagenInformacionSerializer(serializers.ModelSerializer):
             })
 
         if imagen_file:
-            content_type = getattr(imagen_file, "content_type", "")
-            allowed_types = ["image/jpeg", "image/png", "image/webp"]
-            if content_type not in allowed_types:
-                raise serializers.ValidationError({
-                    "imagen_file": "Solo se permiten JPG, PNG o WEBP."
-                })
-            if not content_type.startswith("image/"):
-                raise serializers.ValidationError({
-                    "imagen_file": "Solo se permiten archivos de imagen."
-                })
-
-            max_size = 5 * 1024 * 1024  # 5 MB
-            if imagen_file.size > max_size:
-                raise serializers.ValidationError({
-                    "imagen_file": "La imagen no puede superar 5 MB."
-                })
+            try:
+                validate_image_upload(imagen_file, allow_gif=False)
+            except serializers.ValidationError as exc:
+                raise serializers.ValidationError({"imagen_file": exc.detail})
 
         return attrs
 

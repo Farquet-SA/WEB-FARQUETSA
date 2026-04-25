@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./historial.css";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import Pagination from "../../components/Pagination";
 import { getHistorial, tiempodelimpieza, getTiempoLimpieza } from "../../api/historial";
 
 const OPCIONES_LIMPIEZA = [
@@ -17,6 +16,7 @@ const MAPA_MODULOS = {
   "Categorías": "categorias",
   "Usuarios": "usuarios"
 };
+const PAGE_SIZE = 20;
 
 export default function Historial() {
   const [filtro, setFiltro] = useState("Todos");
@@ -24,6 +24,8 @@ export default function Historial() {
   const [limpieza, setLimpieza] = useState(""); // Estado para el label visible
   const [configuracionReal, setConfiguracionReal] = useState(null); // Para volver atrás si cancela
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [exportando, setExportando] = useState(false);
+  const [page, setPage] = useState(1);
 
 
   useEffect(() => {
@@ -51,6 +53,7 @@ export default function Historial() {
       }
     };
     loadData();
+    setPage(1);
   }, [filtro]);
 
   const handleLimpiezaChange = (e) => {
@@ -80,23 +83,39 @@ export default function Historial() {
     setMostrarConfirmacion(false);
   };
 
-  const exportarPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Historial de acciones", 14, 15);
-    const tabla = historial.map((item) => [
-      item.usuario,
-      item.accion,
-      item.fecha,
-      item.hora,
-      item.detalle,
-    ]);
-    autoTable(doc, {
-      head: [["Usuario", "Acción", "Fecha", "Hora", "Detalle"]],
-      body: tabla,
-      startY: 20,
-    });
-    doc.save("historial.pdf");
+  const exportarPDF = async () => {
+    setExportando(true);
+    try {
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+      ]);
+      const doc = new jsPDF();
+      doc.text("Historial de acciones", 14, 15);
+      const tabla = historial.map((item) => [
+        item.usuario,
+        item.accion,
+        item.fecha,
+        item.hora,
+        item.detalle,
+      ]);
+      autoTable(doc, {
+        head: [["Usuario", "Acción", "Fecha", "Hora", "Detalle"]],
+        body: tabla,
+        startY: 20,
+      });
+      doc.save("historial.pdf");
+    } finally {
+      setExportando(false);
+    }
   };
+
+  const paginatedHistorial = useMemo(() => {
+    const totalPages = Math.max(1, Math.ceil(historial.length / PAGE_SIZE));
+    const safePage = Math.min(page, totalPages);
+    const start = (safePage - 1) * PAGE_SIZE;
+    return historial.slice(start, start + PAGE_SIZE);
+  }, [historial, page]);
 
   return (
     <div className="historial-container">
@@ -116,8 +135,8 @@ export default function Historial() {
           </thead>
           <tbody>
             {historial.length > 0 ? (
-              historial.map((item, index) => (
-                <tr key={index}>
+              paginatedHistorial.map((item, index) => (
+                <tr key={`${item.fecha}-${item.hora}-${index}`}>
                   <td>{item.usuario}</td>
                   <td>{item.accion}</td>
                   <td>{item.fecha}</td>
@@ -132,6 +151,13 @@ export default function Historial() {
             )}
           </tbody>
         </table>
+        <Pagination
+          page={page}
+          totalItems={historial.length}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPage}
+          itemLabel="registros"
+        />
         </div>
 
         <div className="historial-panel">
@@ -160,7 +186,9 @@ export default function Historial() {
             </select>
           </div>
 
-          <button className="btn-pdf" onClick={exportarPDF}>Exportar PDF</button>
+          <button className="btn-pdf" onClick={exportarPDF} disabled={exportando}>
+            {exportando ? "Exportando..." : "Exportar PDF"}
+          </button>
         </div>
       </div>
 

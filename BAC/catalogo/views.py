@@ -7,13 +7,14 @@ from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.mail import send_mail
-from .serializers import AdminSerializer
+from .serializers import AdminSerializer, ContactoSerializer, validate_image_upload
 from .permissions import IsSuperAdmin
 
 from .utils import registrar_historial
@@ -35,7 +36,7 @@ def _set_refresh_cookie(response, refresh_token):
         value=str(refresh_token),
         httponly=True,
         secure=not settings.DEBUG,
-        samesite="Strict",
+        samesite=settings.SIMPLE_JWT_REFRESH_COOKIE_SAMESITE,
         max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
         path="/api/auth/",
     )
@@ -43,6 +44,8 @@ def _set_refresh_cookie(response, refresh_token):
 
 class CookieLoginView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
 
     def post(self, request):
         serializer = TokenObtainPairSerializer(data=request.data)
@@ -61,6 +64,8 @@ class CookieLoginView(APIView):
 
 class CookieRefreshView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
 
     def post(self, request):
         refresh_token = request.COOKIES.get(COOKIE_NAME)
@@ -158,6 +163,21 @@ class ProductoViewSet(ModelViewSet):
     serializer_class = ProductoSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search = self.request.query_params.get("q")
+        categoria = self.request.query_params.get("categoria")
+        estado = self.request.query_params.get("estado")
+
+        if search:
+            queryset = queryset.filter(nombre__icontains=search.strip())
+        if categoria:
+            queryset = queryset.filter(categoria_id=categoria)
+        if estado:
+            queryset = queryset.filter(estado=estado)
+
+        return queryset
+
     def get_permissions(self):
         # GET público (list/retrieve), escritura solo admin
         if self.action in ["list", "retrieve"]:
@@ -242,11 +262,18 @@ class CurrentUserView(APIView):
 class ProductImageUploadView(APIView):
     permission_classes = [IsAdminUser]
     parser_classes = [MultiPartParser, FormParser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "uploads"
 
     def post(self, request):
         file_obj = request.FILES.get("file")
         if not file_obj:
             raise ValidationError({"file": "Debes seleccionar una imagen."})
+
+        try:
+            validate_image_upload(file_obj)
+        except ValidationError as exc:
+            raise ValidationError({"file": exc.detail})
 
         image_url = upload_product_image(file_obj)
         return Response({"url": image_url}, status=status.HTTP_201_CREATED)
@@ -341,28 +368,41 @@ def configuracion_limpieza(request):
 
     if request.method == 'POST':
         meses = request.data.get('meses')
+        try:
+            meses = int(meses)
+        except (TypeError, ValueError):
+            return Response(
+                {'meses': 'Debe enviar un numero entero.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if meses < 0 or meses > 120:
+            return Response(
+                {'meses': 'Debe estar entre 0 y 120 meses.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         config.meses_retencion_historial = meses
         config.save()
         return Response({'status': 'Configuración actualizada'})
 
 class ContactoView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "contact"
 
     def post(self, request):
-        nombre = request.data.get("nombre")
-        apellido = request.data.get("apellido")
-        email = request.data.get("email")
-        mensaje = request.data.get("mensaje")
+        serializer = ContactoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
 
         send_mail(
             subject="Nuevo mensaje desde formulario de contacto",
             message=f"""
-Nombre: {nombre}
-Apellido: {apellido}
-Correo: {email}
+Nombre: {data['nombre']}
+Apellido: {data['apellido']}
+Correo: {data['email']}
 
 Mensaje:
-{mensaje}
+{data['mensaje']}
             """,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[settings.CONTACT_RECEIVER_EMAIL],

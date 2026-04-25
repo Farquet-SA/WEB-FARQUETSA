@@ -1,0 +1,87 @@
+.statusBlock {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid #dbe7f7;
+  border-radius: 16px;
+  background: #fff;
+  padding: 16px;
+  color: #20344f;
+  box-shadow: 0 8px 18px rgba(2, 32, 71, 0.05);
+}
+
+.statusBlock.compact {
+  padding: 12px;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.statusBlock.error {
+  border-color: #ffd6d6;
+  background: #fff8f8;
+  color: #7a271a;
+}
+
+.statusBlock.success {
+  border-color: #bfe8d4;
+  background: #f3fcf7;
+  color: #065f46;
+}
+
+.statusBlock.loading {
+  background: linear-gradient(90deg, #fff, #f7fbff, #fff);
+  background-size: 220% 100%;
+  animation: statusShimmer 1.4s ease-in-out infinite;
+}
+
+.statusIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: #eef4fc;
+  color: #0b2b4b;
+  font-weight: 900;
+}
+
+.statusBlock.error .statusIcon {
+  background: #ffecec;
+  color: #b42318;
+}
+
+.statusBlock.success .statusIcon {
+  background: #dff7ea;
+  color: #067647;
+}
+
+.statusContent {
+  min-width: 0;
+}
+
+.statusContent strong {
+  display: block;
+  color: inherit;
+  font-size: 15px;
+}
+
+.statusContent p {
+  margin: 4px 0 0;
+  color: inherit;
+  line-height: 1.5;
+}
+
+.statusAction {
+  margin-top: 12px;
+}
+
+@keyframes statusShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 220% 50%;
+  }
+}

@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Django local/runtime files
+BAC/db.sqlite3
+BAC/test_db.sqlite3
+
+# Node/Vite
+node_modules/
+Fra/node_modules/
+dist/
+Fra/dist/
+
+# Environment files with secrets
+.env
+BAC/.env
+Fra/.env
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/

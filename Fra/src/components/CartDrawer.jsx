@@ -46,7 +46,7 @@ export default function CartDrawer() {
               {count} {count === 1 ? "artículo" : "artículos"}
             </p>
           </div>
-          <button className="cdClose" onClick={close} aria-label="Cerrar">
+          <button className="cdClose" type="button" onClick={close} aria-label="Cerrar carrito">
             ✕
           </button>
         </div>
@@ -70,6 +70,7 @@ export default function CartDrawer() {
 
                   <div className="cdQtyRow">
                     <button
+                      type="button"
                       onClick={() => dec(x.id)}
                       className="cdQtyBtn"
                       aria-label={`Disminuir cantidad de ${x.nombre}`}
@@ -93,6 +94,7 @@ export default function CartDrawer() {
                     />
 
                     <button
+                      type="button"
                       onClick={() => inc(x.id)}
                       className="cdQtyBtn"
                       aria-label={`Aumentar cantidad de ${x.nombre}`}
@@ -101,6 +103,7 @@ export default function CartDrawer() {
                     </button>
 
                     <button
+                      type="button"
                       onClick={() => removeItem(x.id)}
                       className="cdTrash"
                       title="Quitar producto"
@@ -122,7 +125,7 @@ export default function CartDrawer() {
         {/* Footer solo si hay items (más pro) */}
         {items.length > 0 && (
           <div className="cdFooter">
-            <button className="cdClear" onClick={clear}>
+            <button className="cdClear" type="button" onClick={clear}>
               Vaciar cotización
             </button>
 

@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { getProducts } from "../api/products";
 import ProductCard from "../components/ProductCard";
+import StatusBlock from "../components/StatusBlock";
 import "./home.css";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState("");
   const [q, setQ] = useState("");
   const navigate = useNavigate();
 
@@ -84,10 +87,16 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       try {
+        setProductsLoading(true);
+        setProductsError("");
         const data = await getProducts();
         setProducts(Array.isArray(data) ? data : data?.results ?? []);
       } catch (e) {
         console.error(e);
+        setProducts([]);
+        setProductsError("No pudimos cargar los productos destacados.");
+      } finally {
+        setProductsLoading(false);
       }
     })();
   }, []);
@@ -135,7 +144,11 @@ export default function Home() {
             {/* Buscador (sin botones redundantes) */}
             <form className="heroSearch" onSubmit={goSearch}>
               <span className="heroSearchIcon">🔎</span>
+              <label className="srOnly" htmlFor="home-search">
+                Buscar medicamentos
+              </label>
               <input
+                id="home-search"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Buscar medicamentos, productos..."
@@ -155,6 +168,7 @@ export default function Home() {
                     setPendingIdx(null);
                     setIdx(i);
                   }}
+                  type="button"
                   aria-label={`Slide ${i + 1}`}
                 />
               ))}
@@ -353,15 +367,37 @@ export default function Home() {
             <p>Encuentra los mejores productos farmacéuticos disponibles.</p>
           </div>
 
-          <div className="gridProducts">
-            {featured.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+          {productsLoading ? (
+            <StatusBlock
+              title="Cargando productos destacados"
+              message="Estamos preparando una selección del catálogo."
+              tone="loading"
+              icon="..."
+            />
+          ) : productsError ? (
+            <StatusBlock
+              title="No se pudieron cargar los productos"
+              message={productsError}
+              tone="error"
+              icon="!"
+            />
+          ) : featured.length === 0 ? (
+            <StatusBlock
+              title="Sin productos destacados"
+              message="Agrega productos desde el panel administrador para completar esta sección."
+              icon="0"
+            />
+          ) : (
+            <div className="gridProducts">
+              {featured.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          )}
 
           <div className="centerCta">
-            <Link className="btnPrimary" to="/api/productos">
-              Ver Todos los Productos
+            <Link className="btnPrimary" to="/productos">
+              Ver todos los productos
             </Link>
           </div>
         </div>

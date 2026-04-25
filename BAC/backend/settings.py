@@ -97,6 +97,9 @@ SECRET_KEY = os.getenv(
     "django-insecure-dev-only-change-me",
 )
 DEBUG = get_bool("DJANGO_DEBUG", True)
+if not DEBUG and SECRET_KEY == "django-insecure-dev-only-change-me":
+    raise RuntimeError("DJANGO_SECRET_KEY must be set when DJANGO_DEBUG=False")
+
 ALLOWED_HOSTS = get_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
 
 CORS_ALLOWED_ORIGINS = get_list(
@@ -194,10 +197,22 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SAMESITE = os.getenv("DJANGO_SESSION_COOKIE_SAMESITE", "Lax")
+CSRF_COOKIE_SAMESITE = os.getenv("DJANGO_CSRF_COOKIE_SAMESITE", "Lax")
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = get_bool("DJANGO_SECURE_SSL_REDIRECT", True)
+    SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_SECURE_HSTS_SECONDS", "31536000"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = get_bool(
+        "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS",
+        True,
+    )
+    SECURE_HSTS_PRELOAD = get_bool("DJANGO_SECURE_HSTS_PRELOAD", False)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
@@ -208,6 +223,11 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_THROTTLE_RATES": {
+        "auth": os.getenv("DRF_THROTTLE_AUTH", "30/min"),
+        "contact": os.getenv("DRF_THROTTLE_CONTACT", "5/min"),
+        "uploads": os.getenv("DRF_THROTTLE_UPLOADS", "20/hour"),
+    },
 }
 
 SIMPLE_JWT = {
@@ -219,13 +239,17 @@ SIMPLE_JWT = {
 }
 
 SIMPLE_JWT_REFRESH_COOKIE = "refresh_token"
+SIMPLE_JWT_REFRESH_COOKIE_SAMESITE = os.getenv(
+    "SIMPLE_JWT_REFRESH_COOKIE_SAMESITE",
+    "Strict",
+)
 
 CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "").strip()
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "").strip()
 CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "").strip()
 CLOUDINARY_UPLOAD_FOLDER = os.getenv(
     "CLOUDINARY_UPLOAD_FOLDER",
-    "rayito-pharmacy/productos",
+    "farquetsa/productos",
 ).strip()
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

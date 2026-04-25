@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import Pagination from "../../components/Pagination";
+import StatusBlock from "../../components/StatusBlock";
 import { getRole } from "../../api/auth";
 import {
   getAdmins,
@@ -22,6 +24,7 @@ const EMPTY_FORM = {
   role: "admin",
   is_active: true,
 };
+const PAGE_SIZE = 10;
 
 export default function AdminUsuarios() {
   const role = getRole();
@@ -32,6 +35,7 @@ export default function AdminUsuarios() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [page, setPage] = useState(1);
 
   const loadUsers = useCallback(async () => {
     if (role !== "superadmin") {
@@ -168,6 +172,13 @@ export default function AdminUsuarios() {
   const getRoleLabel = (value) =>
     ROLE_OPTIONS.find((item) => item.value === value)?.label || value;
 
+  const paginatedUsers = useMemo(() => {
+    const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
+    const safePage = Math.min(page, totalPages);
+    const start = (safePage - 1) * PAGE_SIZE;
+    return users.slice(start, start + PAGE_SIZE);
+  }, [users, page]);
+
   if (role !== "superadmin") {
     return (
       <div className="auSection">
@@ -199,71 +210,95 @@ export default function AdminUsuarios() {
 
         <form className="auForm" onSubmit={handleSubmit}>
           <div className="auFormRow">
-            <input
-              className="auInput"
-              value={form.username}
-              onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))}
-              placeholder="Nombre de usuario *"
-              required
-            />
-            <input
-              className="auInput"
-              value={form.email}
-              onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
-              placeholder="Correo electrónico *"
-              type="email"
-              required
-            />
+            <div className="auField">
+              <label htmlFor="usuario-nombre">Nombre de usuario</label>
+              <input
+                id="usuario-nombre"
+                className="auInput"
+                value={form.username}
+                onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))}
+                placeholder="Ej. admin.farquetsa"
+                required
+              />
+            </div>
+            <div className="auField">
+              <label htmlFor="usuario-email">Correo electrónico</label>
+              <input
+                id="usuario-email"
+                className="auInput"
+                value={form.email}
+                onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                placeholder="admin@farquetsa.com"
+                type="email"
+                required
+              />
+            </div>
           </div>
 
           <div className="auFormRow">
-            <div className="auPasswordWrap">
-              <input
-                className="auInput"
-                value={form.password}
-                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
-                placeholder={editingId ? "Nueva contraseña (opcional)" : "Contraseña *"}
-                type={showPassword ? "text" : "password"}
-              />
-              <button
-                type="button"
-                className="auEyeBtn"
-                onClick={() => setShowPassword((v) => !v)}
-                title={showPassword ? "Ocultar" : "Mostrar"}
-              >
-                {showPassword ? "🙈" : "👁️"}
-              </button>
+            <div className="auField">
+              <label htmlFor="usuario-password">
+                {editingId ? "Nueva contraseña" : "Contraseña"}
+              </label>
+              <div className="auPasswordWrap">
+                <input
+                  id="usuario-password"
+                  className="auInput"
+                  value={form.password}
+                  onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                  placeholder={editingId ? "Opcional" : "Mínimo 6 caracteres"}
+                  type={showPassword ? "text" : "password"}
+                />
+                <button
+                  type="button"
+                  className="auEyeBtn"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? "Ocultar" : "Ver"}
+                </button>
+              </div>
             </div>
-            <select
-              className="auInput"
-              value={form.role}
-              onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
-            >
-              {ROLE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <div className="auField">
+              <label htmlFor="usuario-rol">Rol</label>
+              <select
+                id="usuario-rol"
+                className="auInput"
+                value={form.role}
+                onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
+              >
+                {ROLE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <label className="auToggleRow">
-            <div
+            <input
+              className="auToggleInput"
+              type="checkbox"
+              checked={form.is_active}
+              onChange={(e) => setForm((prev) => ({ ...prev, is_active: e.target.checked }))}
+            />
+            <span
               className="auToggleTrack"
               style={{ background: form.is_active ? "#0b2b4b" : "#c9d8ee" }}
-              onClick={() => setForm((prev) => ({ ...prev, is_active: !prev.is_active }))}
             >
-              <div
+              <span
                 className="auToggleThumb"
                 style={{ transform: form.is_active ? "translateX(20px)" : "translateX(2px)" }}
               />
-            </div>
+            </span>
             <span className="auToggleLabel">
               Usuario {form.is_active ? "activo" : "inactivo"}
             </span>
           </label>
 
-          {error && <div className="auError">{error}</div>}
+          {error && <StatusBlock title="Revisa el usuario" message={error} tone="error" icon="!" />}
 
           <button type="submit" disabled={saving} className="auSubmitBtn">
             {saving ? "Guardando..." : editingId ? "Actualizar usuario" : "Crear usuario"}
@@ -281,11 +316,22 @@ export default function AdminUsuarios() {
           {loading && <span style={{ color: "#5c6b7b" }}>Cargando usuarios...</span>}
         </div>
 
-        {users.length === 0 && !loading ? (
-          <div className="auEmpty">No hay usuarios creados todavía.</div>
+        {loading ? (
+          <StatusBlock
+            title="Cargando usuarios"
+            message="Estamos consultando los administradores registrados."
+            tone="loading"
+            icon="..."
+          />
+        ) : users.length === 0 ? (
+          <StatusBlock
+            title="Aún no hay usuarios"
+            message="Crea el primer administrador para operar el panel con control de roles."
+            icon="0"
+          />
         ) : (
           <div className="auList">
-            {users.map((user) => (
+            {paginatedUsers.map((user) => (
               <article key={user.id} className="auRow">
                 <div className="auAvatar">{getInitials(user.username)}</div>
 
@@ -319,6 +365,15 @@ export default function AdminUsuarios() {
               </article>
             ))}
           </div>
+        )}
+        {users.length > 0 && (
+          <Pagination
+            page={page}
+            totalItems={users.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+            itemLabel="usuarios"
+          />
         )}
       </section>
     </div>

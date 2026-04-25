@@ -3,6 +3,7 @@ import { getRole } from "../../api/auth";
 import { getProducts } from "../../api/products";
 import { getCategories } from "../../api/categories";
 import { getAdmins } from "../../api/admin";
+import StatusBlock from "../../components/StatusBlock";
 
 export default function AdminHome() {
   const role = getRole();
@@ -52,150 +53,73 @@ export default function AdminHome() {
   }, [loadStats]);
 
   return (
-    <div style={{ display: "grid", gap: 18 }}>
-      {/* Bienvenida */}
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #e5edf7",
-          borderRadius: 18,
-          padding: 18,
-          boxShadow: "0 8px 18px rgba(2, 32, 71, 0.06)",
-        }}
-      >
-        <h1 style={{ margin: 0, color: "#0b2b4b" }}>
+    <div className="adminPage">
+      <section className="adminPanel">
+        <p className="adminEyebrow">Panel de control</p>
+        <h1 className="adminTitle">
           Bienvenido, {role === "superadmin" ? "Superadmin" : "Administrador"}
         </h1>
-        <p style={{ color: "#5c6b7b", marginTop: 8 }}>
+        <p className="adminSub">
           Gestiona el catálogo de productos, categorías y{" "}
-          {role === "superadmin" ? "usuarios" : "contenido"} de Rayito Pharmacy.
+          {role === "superadmin" ? "usuarios" : "contenido"} de Farquetsa.
         </p>
-      </div>
+      </section>
 
-      {/* Estadísticas rápidas */}
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #e5edf7",
-          borderRadius: 18,
-          padding: 18,
-          boxShadow: "0 8px 18px rgba(2, 32, 71, 0.06)",
-        }}
-      >
-        <h2 style={{ margin: 0, color: "#0b2b4b", fontSize: 30 }}>
-          Estadísticas rápidas
-        </h2>
-        <p style={{ color: "#5c6b7b", marginTop: 8 }}>
-          Resumen actual del sistema.
-        </p>
+      <section className="adminPanel">
+        <div className="adminPanelHead">
+          <div>
+            <p className="adminEyebrow">Resumen</p>
+            <h2 className="adminTitle">Estadísticas rápidas</h2>
+            <p className="adminSub">Lectura actual del catálogo y la administración.</p>
+          </div>
+        </div>
 
         {loading ? (
-          <div style={{ color: "#5c6b7b", marginTop: 12 }}>
-            Cargando estadísticas...
-          </div>
+          <StatusBlock
+            title="Cargando estadísticas"
+            message="Estamos consultando la información más reciente del sistema."
+            tone="loading"
+            icon="..."
+          />
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gap: 12,
-              marginTop: 14,
-              gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-            }}
-          >
-            <div style={statCardStyle}>
-              <div style={statNumberStyle}>{stats.products}</div>
-              <div style={statLabelStyle}>Productos</div>
+          <div className="adminStatsGrid">
+            <div className="adminStatCard">
+              <div className="adminStatNumber">{stats.products}</div>
+              <div className="adminStatLabel">Productos</div>
             </div>
-            <div style={statCardStyle}>
-              <div style={statNumberStyle}>{stats.categories}</div>
-              <div style={statLabelStyle}>Categorías</div>
+            <div className="adminStatCard">
+              <div className="adminStatNumber">{stats.categories}</div>
+              <div className="adminStatLabel">Categorías</div>
             </div>
             {role === "superadmin" && (
-              <div style={statCardStyle}>
-                <div style={statNumberStyle}>{stats.users}</div>
-                <div style={statLabelStyle}>Usuarios</div>
+              <div className="adminStatCard">
+                <div className="adminStatNumber">{stats.users}</div>
+                <div className="adminStatLabel">Usuarios</div>
               </div>
             )}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Acciones rápidas */}
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #e5edf7",
-          borderRadius: 18,
-          padding: 18,
-          boxShadow: "0 8px 18px rgba(2, 32, 71, 0.06)",
-        }}
-      >
-        <h2 style={{ margin: 0, color: "#0b2b4b", fontSize: 30 }}>
-          Acciones rápidas
-        </h2>
-        <p style={{ color: "#5c6b7b", marginTop: 8 }}>
-          Navega directamente a las secciones principales.
-        </p>
+      <section className="adminPanel flat">
+        <p className="adminEyebrow">Operación</p>
+        <h2 className="adminTitle">Acciones rápidas</h2>
+        <p className="adminSub">Entra directo a las secciones principales del panel.</p>
 
-        <div
-          style={{
-            display: "grid",
-            gap: 12,
-            marginTop: 14,
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          }}
-        >
-          <a href="/admin/productos" style={actionLinkStyle}>
-            <div style={actionCardStyle}>📦 Gestionar Productos</div>
+        <div className="adminActionsGrid">
+          <a href="/admin/productos" className="adminAction">
+            Productos
           </a>
-          <a href="/admin/categorias" style={actionLinkStyle}>
-            <div style={actionCardStyle}>📂 Gestionar Categorías</div>
+          <a href="/admin/categorias" className="adminAction">
+            Categorías
           </a>
           {role === "superadmin" && (
-            <a href="/admin/usuarios" style={actionLinkStyle}>
-              <div style={actionCardStyle}>👥 Gestionar Usuarios</div>
+            <a href="/admin/usuarios" className="adminAction">
+              Usuarios
             </a>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }
-
-// Estilos
-const statCardStyle = {
-  background: "#f7fbff",
-  border: "1px solid #e5edf7",
-  borderRadius: 12,
-  padding: 16,
-  textAlign: "center",
-};
-
-const statNumberStyle = {
-  fontSize: 32,
-  fontWeight: 900,
-  color: "#0b2b4b",
-};
-
-const statLabelStyle = {
-  fontSize: 14,
-  color: "#5c6b7b",
-  marginTop: 4,
-};
-
-const actionLinkStyle = {
-  textDecoration: "none",
-  color: "inherit",
-};
-
-const actionCardStyle = {
-  background: "#eaf2ff",
-  border: "1px solid #dbe7f7",
-  borderRadius: 12,
-  padding: 16,
-  textAlign: "center",
-  fontWeight: 700,
-  color: "#0b2b4b",
-  cursor: "pointer",
-  transition: "background 0.2s",
-};

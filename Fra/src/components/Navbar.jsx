@@ -18,11 +18,11 @@ export default function Navbar() {
           />
           <div className="brandText">
             <strong>Farquetsa</strong>
-            <span>Farmaceutica S.A</span>
+            <span>Farmacéutica S.A</span>
           </div>
         </div>
 
-        <nav className={`navLinks${menuOpen ? " open" : ""}`}>
+        <nav className={`navLinks${menuOpen ? " open" : ""}`} aria-label="Navegación principal">
           <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")} onClick={() => setMenuOpen(false)}>
             Inicio
           </NavLink>
@@ -38,13 +38,30 @@ export default function Navbar() {
         </nav>
 
         <div className="navActions">
-          <button className="cartBtn" type="button" onClick={open}>
-            <span className="cartIcon" aria-hidden="true">🛒</span>
+          <button className="cartBtn" type="button" onClick={open} aria-label="Abrir carrito">
+            <svg
+              className="cartIcon"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M6.5 7.5h14l-1.4 7.1a2 2 0 0 1-2 1.6H9.2a2 2 0 0 1-2-1.7L5.8 4.8H3.5"
+                stroke="currentColor"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9.5 20a.7.7 0 1 0 0-1.4.7.7 0 0 0 0 1.4ZM17.2 20a.7.7 0 1 0 0-1.4.7.7 0 0 0 0 1.4Z"
+                fill="currentColor"
+              />
+            </svg>
             {count > 0 && <span className="cartBadge">{count}</span>}
           </button>
 
           <a className="callBtn" href="tel:+50200000000">
-            Llamar Ahora
+            Llamar ahora
           </a>
 
           <button

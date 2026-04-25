@@ -27,7 +27,7 @@ export default function AdminLayout() {
             </div>
           </div>
 
-          <nav className="adminNav">
+          <nav className="adminNav" aria-label="Navegación del panel administrativo">
             {role === "admin" && (
               <>
                 <NavLink to="/admin" end className={({ isActive }) => `adminNavLink${isActive ? " active" : ""}`}>Inicio</NavLink>
@@ -48,7 +48,7 @@ export default function AdminLayout() {
               </>
             )}
 
-            <button className="adminLogout" onClick={salir}>
+            <button className="adminLogout" type="button" onClick={salir}>
               Cerrar sesión
             </button>
           </nav>

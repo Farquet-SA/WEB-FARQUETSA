@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/auth";
+import StatusBlock from "../components/StatusBlock";
+import "./dashboard/adminLayout.css";
 
 export default function AdminLogin() {
   const nav = useNavigate();
@@ -26,44 +28,44 @@ export default function AdminLogin() {
 
   return (
     <div style={{ maxWidth: 420, margin: "0 auto", padding: "60px 18px" }}>
-      <h1>Acceso Administrador</h1>
+      <h1>Acceso administrador</h1>
       <p style={{ color: "#5c6b7b" }}>
         Inicia sesión para gestionar productos y categorías.
       </p>
 
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12, marginTop: 18 }}>
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Usuario"
-          autoComplete="username"
-          required
-          style={{ padding: 12, borderRadius: 12, border: "1px solid #e5edf7" }}
-        />
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Contraseña"
-          type="password"
-          autoComplete="current-password"
-          required
-          style={{ padding: 12, borderRadius: 12, border: "1px solid #e5edf7" }}
-        />
+        <label className="adminField" htmlFor="login-usuario">
+          <span>Usuario</span>
+          <input
+            id="login-usuario"
+            className="adminInput"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Tu usuario"
+            autoComplete="username"
+            required
+          />
+        </label>
+        <label className="adminField" htmlFor="login-password">
+          <span>Contraseña</span>
+          <input
+            id="login-password"
+            className="adminInput"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Tu contraseña"
+            type="password"
+            autoComplete="current-password"
+            required
+          />
+        </label>
 
-        {err && <div style={{ color: "#b42318", fontWeight: 700 }}>{err}</div>}
+        {err && <StatusBlock title="No se pudo iniciar sesión" message={err} tone="error" icon="!" />}
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            height: 44,
-            borderRadius: 12,
-            border: "1px solid #dbe7f7",
-            background: "#0b2b4b",
-            color: "#fff",
-            fontWeight: 800,
-            cursor: "pointer",
-          }}
+          className="adminPrimaryBtn"
         >
           {loading ? "Entrando..." : "Entrar"}
         </button>
