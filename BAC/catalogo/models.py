@@ -79,7 +79,8 @@ class Historial(models.Model):
     Modulos = [
         ("categorias", "Categorías"), 
         ("productos", "Productos"), 
-        ("usuarios", "Usuarios")]
+        ("usuarios", "Usuarios"),
+        ("servicios", "Servicios")]
     
     modulo = models.CharField(max_length=20, choices=Modulos)
     accion = models.CharField(max_length=255)

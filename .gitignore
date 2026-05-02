@@ -1,0 +1,85 @@
+# =========================
+# GENERAL
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+
+# =========================
+# ENTORNOS / VARIABLES
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# PYTHON / DJANGO (BACKEND - BAC)
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Base de datos
+db.sqlite3
+*.sqlite3
+
+# Migraciones (opcional: si quieres ignorarlas)
+# */migrations/*
+# !*/migrations/__init__.py
+
+# Archivos estáticos y media
+staticfiles/
+media/
+
+# Archivos temporales
+*.swp
+
+# =========================
+# NODE / FRONTEND (Fra)
+# =========================
+node_modules/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache
+.cache/
+.vite/
+
+# =========================
+# VITE / CONFIG
+# =========================
+vite.config.ts.timestamp-*
+
+# =========================
+# EDITORES / IDEs
+# =========================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# =========================
+# TYPESCRIPT
+# =========================
+*.tsbuildinfo
+
+# =========================
+# OTROS
+# =========================
+coverage/
+*.coverage
+htmlcov/

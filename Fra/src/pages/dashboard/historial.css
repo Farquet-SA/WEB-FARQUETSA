@@ -1,5 +1,9 @@
 .historial-container {
   padding: 20px;
+  background: rgb(255, 255, 255); 
+  border: 1px solid rgb(229, 237, 247); 
+  border-radius: 18px; padding: 18px; 
+  box-shadow: rgba(2, 32, 71, 0.06) 0px 8px 18px;
  }
 
 .historial-container h2 {
@@ -20,6 +24,8 @@
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #ddd;
+    width: 100%;
+  table-layout: fixed;
 }
 
 .historial-tabla th {
@@ -30,6 +36,47 @@
 }
 
 .historial-tabla td {
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.historial-tabla th:nth-child(1),
+.historial-tabla td:nth-child(1) {
+  width: 20%;
+}
+
+.historial-tabla th:nth-child(2),
+.historial-tabla td:nth-child(2) {
+  width: 15%;
+}
+
+.historial-tabla th:nth-child(3),
+.historial-tabla td:nth-child(3) {
+  width: 15%;
+}
+
+.historial-tabla th:nth-child(4),
+.historial-tabla td:nth-child(4) {
+  width: 10%;
+}
+
+.historial-tabla th:nth-child(5),
+.historial-tabla td:nth-child(5) {
+  width: 40%;
+}
+
+
+.historial-tabla th {
+  background-color: #1f3b5b;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.historial-tabla td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
   padding: 10px;
   border-top: 1px solid #ddd;
 }

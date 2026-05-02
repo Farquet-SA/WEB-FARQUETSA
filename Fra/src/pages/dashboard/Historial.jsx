@@ -15,7 +15,8 @@ const MAPA_MODULOS = {
   "Todos": null,
   "Productos": "productos",
   "Categorías": "categorias",
-  "Usuarios": "usuarios"
+  "Usuarios": "usuarios",
+  "Servicios": "servicios"
 };
 
 export default function Historial() {

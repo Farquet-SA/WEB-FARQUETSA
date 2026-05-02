@@ -383,6 +383,48 @@ class ServicioViewSet(viewsets.ModelViewSet):
         if self.action in ["list", "retrieve"]:
             return [AllowAny()]
         return [IsAdminUser()]
+    
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+
+        registrar_historial(
+            request.user,
+            "crear",
+            "servicios",
+            f"Creó un nuevo servicio llamado '{response.data['title']}'"
+        )
+
+        return response
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        response = super().update(request, *args, **kwargs)
+
+        registrar_historial(
+            request.user,
+            "editar",
+            "servicios",
+            f"Editó el servicio '{instance.title}'"
+        )
+
+        return response
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        registrar_historial(
+            request.user,
+            "eliminar",
+            "servicios",
+            f"Eliminó el servicio '{instance.title}'"
+        )
+
+        return super().destroy(request, *args, **kwargs)
+    
+
+    
+
 
 
 class PasoProcesoViewSet(viewsets.ModelViewSet):
