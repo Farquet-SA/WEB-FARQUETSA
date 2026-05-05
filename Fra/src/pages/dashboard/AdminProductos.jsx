@@ -47,7 +47,7 @@ export default function AdminProductos() {
     [categories],
   );
 
-  const resetForm = ({ clearFeedback = true } = {}) => {
+  const resetForm = () => {
     setForm(EMPTY_FORM);
     setEditingId(null);
     setPreview("");
