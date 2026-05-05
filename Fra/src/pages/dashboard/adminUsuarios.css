@@ -42,17 +42,6 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
-.auField {
-  display: grid;
-  gap: 6px;
-}
-
-.auField label {
-  color: #20344f;
-  font-size: 13px;
-  font-weight: 900;
-}
-
 .auInput {
   padding: 12px;
   border-radius: 12px;
@@ -82,15 +71,12 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  background: #fff;
-  border: 1px solid #dbe7f7;
-  border-radius: 9px;
+  background: none;
+  border: none;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 900;
-  color: #0b2b4b;
+  font-size: 16px;
   line-height: 1;
-  padding: 6px 8px;
+  padding: 2px;
 }
 
 /* Toggle activo */
@@ -101,17 +87,6 @@
   cursor: pointer;
   user-select: none;
   width: fit-content;
-}
-
-.auToggleInput {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.auToggleInput:focus-visible + .auToggleTrack {
-  outline: 3px solid rgba(11, 43, 75, 0.22);
-  outline-offset: 3px;
 }
 
 .auToggleTrack {

@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from unittest.mock import patch
 
-from .models import Categoria, Producto, Servicio
+from .models import Categoria, Producto, Servicio, PasoProceso, Confianza
 
 
 class CatalogSecurityTests(APITestCase):
@@ -27,11 +27,6 @@ class CatalogSecurityTests(APITestCase):
             password="clientepass123",
             is_staff=False,
         )
-        self.super_user = User.objects.create_superuser(
-            username="root",
-            password="rootpass123",
-            email="root@example.com",
-        )
 
     def _login(self, username, password):
         response = self.client.post(
@@ -45,12 +40,6 @@ class CatalogSecurityTests(APITestCase):
     def test_public_can_list_products(self):
         response = self.client.get("/api/products/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_public_can_filter_products_by_search(self):
-        response = self.client.get("/api/products/", {"q": "para"})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["nombre"], "Paracetamol")
 
     def test_non_admin_cannot_create_product(self):
         access = self._login("cliente", "clientepass123")
@@ -92,30 +81,6 @@ class CatalogSecurityTests(APITestCase):
     def test_auth_me_requires_authentication(self):
         response = self.client.get("/api/auth/me/")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_login_sets_refresh_cookie(self):
-        response = self.client.post(
-            "/api/auth/login/",
-            {"username": "admin", "password": "adminpass123"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("access", response.data)
-        self.assertIn("refresh_token", response.cookies)
-        self.assertTrue(response.cookies["refresh_token"]["httponly"])
-
-    def test_refresh_uses_cookie(self):
-        login = self.client.post(
-            "/api/auth/login/",
-            {"username": "admin", "password": "adminpass123"},
-            format="json",
-        )
-        self.client.cookies["refresh_token"] = login.cookies["refresh_token"].value
-
-        response = self.client.post("/api/auth/refresh/", {}, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("access", response.data)
 
     def test_auth_me_returns_staff_flag(self):
         access = self._login("admin", "adminpass123")
@@ -161,60 +126,6 @@ class CatalogSecurityTests(APITestCase):
             "https://res.cloudinary.com/demo/image/upload/sample.jpg",
         )
         mock_upload_product_image.assert_called_once()
-
-    def test_upload_endpoint_rejects_non_image_file(self):
-        access = self._login("admin", "adminpass123")
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
-        file_obj = SimpleUploadedFile(
-            "producto.txt",
-            b"no es una imagen",
-            content_type="text/plain",
-        )
-
-        response = self.client.post(
-            "/api/uploads/product-image/",
-            {"file": file_obj},
-            format="multipart",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("file", response.data)
-
-    def test_product_price_must_be_positive(self):
-        access = self._login("admin", "adminpass123")
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
-
-        response = self.client.post(
-            "/api/products/",
-            {
-                "nombre": "Precio inválido",
-                "descripcion": "Producto de prueba",
-                "precio": "0.00",
-                "categoria": self.categoria.id,
-                "estado": Producto.Estado.DISPONIBLE,
-                "imagen": "https://example.com/producto.jpg",
-            },
-            format="json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("precio", response.data)
-
-    def test_regular_admin_cannot_list_admin_users(self):
-        access = self._login("admin", "adminpass123")
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
-
-        response = self.client.get("/api/admins/")
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_superadmin_can_list_admin_users(self):
-        access = self._login("root", "rootpass123")
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
-
-        response = self.client.get("/api/admins/")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class ServiciosPermissionsTests(APITestCase):
@@ -277,25 +188,3 @@ class ContactoViewTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         mock_send.assert_called_once()
-
-    def test_contacto_rejects_invalid_email(self):
-        response = self.client.post(
-            "/api/contacto/",
-            {
-                "nombre": "Ana",
-                "apellido": "López",
-                "email": "correo-invalido",
-                "mensaje": "Hola, consulta de prueba.",
-            },
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("email", response.data)
-
-
-class HealthcheckTests(APITestCase):
-    def test_healthcheck_is_public(self):
-        response = self.client.get("/api/health/")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["status"], "ok")

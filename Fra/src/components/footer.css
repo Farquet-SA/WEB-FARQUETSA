@@ -1,0 +1,121 @@
+.siteFooter {
+  margin-top: 60px;
+  background: #eef2f6;
+  border-top: 1px solid #dce5ee;
+  color: #425466;
+}
+
+.siteFooterInner {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 34px 0 30px;
+  display: grid;
+  grid-template-columns: 1.25fr 0.9fr 1.6fr;
+  gap: 34px;
+  align-items: start;
+}
+
+.footerBrandBlock {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.footerLogo {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
+}
+
+.footerBrandBlock h2,
+.footerSection h3 {
+  margin: 0;
+  color: #0b2a4a;
+  letter-spacing: 0;
+}
+
+.footerBrandBlock h2 {
+  font-size: 21px;
+  line-height: 1.15;
+}
+
+.footerBrandBlock p,
+.footerSection p {
+  margin: 7px 0 0;
+}
+
+.footerSection {
+  display: grid;
+  gap: 8px;
+}
+
+.footerSection h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.footerSection a {
+  color: #425466;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footerSection a:hover {
+  color: #0b2a4a;
+}
+
+.footerTeamGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 16px;
+}
+
+.footerTeamGrid span {
+  line-height: 1.35;
+}
+
+.footerUniversity {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #dce5ee;
+  color: #0b2a4a;
+  font-weight: 800;
+}
+
+.footerBottom {
+  border-top: 1px solid #dce5ee;
+  background: #e7edf3;
+}
+
+.footerBottomInner {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 15px 0;
+  color: #5b6b7c;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .siteFooterInner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .siteFooter {
+    margin-top: 42px;
+  }
+
+  .siteFooterInner {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 28px 0 24px;
+  }
+
+  .footerTeamGrid {
+    grid-template-columns: 1fr;
+  }
+}

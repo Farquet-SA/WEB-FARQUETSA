@@ -3,18 +3,19 @@ import { getRole } from "../../api/auth";
 import { getProducts } from "../../api/products";
 import { getCategories } from "../../api/categories";
 import { getAdmins } from "../../api/admin";
-import StatusBlock from "../../components/StatusBlock";
+import { getServicios } from "../../api/servicios";
 
 export default function AdminHome() {
   const role = getRole();
-  const [stats, setStats] = useState({ products: 0, categories: 0, users: 0 });
+  const [stats, setStats] = useState({ products: 0, categories: 0, services: 0, users: 0 });
   const [loading, setLoading] = useState(true);
 
   const loadStats = useCallback(async () => {
     try {
-      const [productsRes, categoriesRes] = await Promise.all([
+      const [productsRes, categoriesRes, servicesRes] = await Promise.all([
         getProducts(),
         getCategories(),
+        getServicios(),
       ]);
 
       const productsCount = Array.isArray(productsRes)
@@ -23,6 +24,9 @@ export default function AdminHome() {
       const categoriesCount = Array.isArray(categoriesRes)
         ? categoriesRes.length
         : categoriesRes?.count || 0;
+      const servicesCount = Array.isArray(servicesRes)
+        ? servicesRes.length
+        : servicesRes?.count || 0;
 
       let usersCount = 0;
       if (role === "superadmin") {
@@ -39,6 +43,7 @@ export default function AdminHome() {
       setStats({
         products: productsCount,
         categories: categoriesCount,
+        services: servicesCount,
         users: usersCount,
       });
     } catch (err) {
@@ -53,73 +58,157 @@ export default function AdminHome() {
   }, [loadStats]);
 
   return (
-    <div className="adminPage">
-      <section className="adminPanel">
-        <p className="adminEyebrow">Panel de control</p>
-        <h1 className="adminTitle">
+    <div style={{ display: "grid", gap: 18 }}>
+      {/* Bienvenida */}
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #e5edf7",
+          borderRadius: 18,
+          padding: 18,
+          boxShadow: "0 8px 18px rgba(2, 32, 71, 0.06)",
+        }}
+      >
+        <h1 style={{ margin: 0, color: "#0b2b4b" }}>
           Bienvenido, {role === "superadmin" ? "Superadmin" : "Administrador"}
         </h1>
-        <p className="adminSub">
+        <p style={{ color: "#5c6b7b", marginTop: 8 }}>
           Gestiona el catálogo de productos, categorías y{" "}
-          {role === "superadmin" ? "usuarios" : "contenido"} de Farquetsa.
+          {role === "superadmin" ? "usuarios" : "contenido"} de Rayito Pharmacy.
         </p>
-      </section>
+      </div>
 
-      <section className="adminPanel">
-        <div className="adminPanelHead">
-          <div>
-            <p className="adminEyebrow">Resumen</p>
-            <h2 className="adminTitle">Estadísticas rápidas</h2>
-            <p className="adminSub">Lectura actual del catálogo y la administración.</p>
-          </div>
-        </div>
+      {/* Estadísticas rápidas */}
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #e5edf7",
+          borderRadius: 18,
+          padding: 18,
+          boxShadow: "0 8px 18px rgba(2, 32, 71, 0.06)",
+        }}
+      >
+        <h2 style={{ margin: 0, color: "#0b2b4b", fontSize: 30 }}>
+          Estadísticas rápidas
+        </h2>
+        <p style={{ color: "#5c6b7b", marginTop: 8 }}>
+          Resumen actual del sistema.
+        </p>
 
         {loading ? (
-          <StatusBlock
-            title="Cargando estadísticas"
-            message="Estamos consultando la información más reciente del sistema."
-            tone="loading"
-            icon="..."
-          />
+          <div style={{ color: "#5c6b7b", marginTop: 12 }}>
+            Cargando estadísticas...
+          </div>
         ) : (
-          <div className="adminStatsGrid">
-            <div className="adminStatCard">
-              <div className="adminStatNumber">{stats.products}</div>
-              <div className="adminStatLabel">Productos</div>
+          <div
+            style={{
+              display: "grid",
+              gap: 12,
+              marginTop: 14,
+              gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            }}
+          >
+            <div style={statCardStyle}>
+              <div style={statNumberStyle}>{stats.products}</div>
+              <div style={statLabelStyle}>Productos</div>
             </div>
-            <div className="adminStatCard">
-              <div className="adminStatNumber">{stats.categories}</div>
-              <div className="adminStatLabel">Categorías</div>
+            <div style={statCardStyle}>
+              <div style={statNumberStyle}>{stats.categories}</div>
+              <div style={statLabelStyle}>Categorías</div>
+            </div>
+            <div style={statCardStyle}>
+              <div style={statNumberStyle}>{stats.services}</div>
+              <div style={statLabelStyle}>Servicios</div>
             </div>
             {role === "superadmin" && (
-              <div className="adminStatCard">
-                <div className="adminStatNumber">{stats.users}</div>
-                <div className="adminStatLabel">Usuarios</div>
+              <div style={statCardStyle}>
+                <div style={statNumberStyle}>{stats.users}</div>
+                <div style={statLabelStyle}>Usuarios</div>
               </div>
             )}
           </div>
         )}
-      </section>
+      </div>
 
-      <section className="adminPanel flat">
-        <p className="adminEyebrow">Operación</p>
-        <h2 className="adminTitle">Acciones rápidas</h2>
-        <p className="adminSub">Entra directo a las secciones principales del panel.</p>
+      {/* Acciones rápidas */}
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #e5edf7",
+          borderRadius: 18,
+          padding: 18,
+          boxShadow: "0 8px 18px rgba(2, 32, 71, 0.06)",
+        }}
+      >
+        <h2 style={{ margin: 0, color: "#0b2b4b", fontSize: 30 }}>
+          Acciones rápidas
+        </h2>
+        <p style={{ color: "#5c6b7b", marginTop: 8 }}>
+          Navega directamente a las secciones principales.
+        </p>
 
-        <div className="adminActionsGrid">
-          <a href="/admin/productos" className="adminAction">
-            Productos
+        <div
+          style={{
+            display: "grid",
+            gap: 12,
+            marginTop: 14,
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          }}
+        >
+          <a href="/admin/productos" style={actionLinkStyle}>
+            <div style={actionCardStyle}>📦 Gestionar Productos</div>
           </a>
-          <a href="/admin/categorias" className="adminAction">
-            Categorías
+          <a href="/admin/categorias" style={actionLinkStyle}>
+            <div style={actionCardStyle}>📂 Gestionar Categorías</div>
+          </a>
+          <a href="/admin/servicios" style={actionLinkStyle}>
+            <div style={actionCardStyle}>🩺 Gestionar Servicios</div>
           </a>
           {role === "superadmin" && (
-            <a href="/admin/usuarios" className="adminAction">
-              Usuarios
+            <a href="/admin/usuarios" style={actionLinkStyle}>
+              <div style={actionCardStyle}>👥 Gestionar Usuarios</div>
             </a>
           )}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
+
+// Estilos
+const statCardStyle = {
+  background: "#f7fbff",
+  border: "1px solid #e5edf7",
+  borderRadius: 12,
+  padding: 16,
+  textAlign: "center",
+};
+
+const statNumberStyle = {
+  fontSize: 32,
+  fontWeight: 900,
+  color: "#0b2b4b",
+};
+
+const statLabelStyle = {
+  fontSize: 14,
+  color: "#5c6b7b",
+  marginTop: 4,
+};
+
+const actionLinkStyle = {
+  textDecoration: "none",
+  color: "inherit",
+};
+
+const actionCardStyle = {
+  background: "#eaf2ff",
+  border: "1px solid #dbe7f7",
+  borderRadius: 12,
+  padding: 16,
+  textAlign: "center",
+  fontWeight: 700,
+  color: "#0b2b4b",
+  cursor: "pointer",
+  transition: "background 0.2s",
+};

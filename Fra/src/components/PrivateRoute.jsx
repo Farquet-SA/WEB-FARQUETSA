@@ -7,27 +7,26 @@ export default function PrivateRoute({ allowedRoles = [] }) {
 
   useEffect(() => {
     let mounted = true;
-    const deny = () => {
-      if (mounted) setStatus("denied");
-    };
 
     const verify = async () => {
       if (!isAuthed()) {
-        deny();
+        if (mounted) setStatus("denied");
         return;
       }
 
       try {
-        const role = getRole();
-
+        const role = getRole()
+          
         if (!allowedRoles.includes(role)) {
-          deny();
+          setStatus("denied");;
+          if (mounted) setStatus("denied");
           return;
         }
 
         if (mounted) setStatus("ok");
       } catch {
-        deny();
+        setStatus("denied");;
+        if (mounted) setStatus("denied");
       }
     };
 

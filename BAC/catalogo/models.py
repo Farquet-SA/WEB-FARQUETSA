@@ -28,6 +28,7 @@ class Producto(models.Model):
     formula = models.TextField(blank=True, default="")
     registro = models.CharField(max_length=120, blank=True, default="")
     presentacion = models.CharField(max_length=120, blank=True, default="")
+    destacado = models.BooleanField(default=False, db_index=True)
 
     categoria = models.ForeignKey(
         Categoria,
@@ -79,6 +80,7 @@ class Historial(models.Model):
     Modulos = [
         ("categorias", "Categorías"), 
         ("productos", "Productos"), 
+        ("servicios", "Servicios"),
         ("usuarios", "Usuarios")]
     
     modulo = models.CharField(max_length=20, choices=Modulos)

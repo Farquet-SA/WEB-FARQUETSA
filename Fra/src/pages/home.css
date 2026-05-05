@@ -24,10 +24,6 @@
   border-bottom: 1px solid var(--line);
 }
 
-.section.soft:has(.gridProducts){
-  padding-top: 72px;
-}
-
 .sectionHead{
   display:flex;
   align-items:flex-end;
@@ -73,8 +69,7 @@
 /* HERO */
 .heroV2{
   position: relative;
-  height: 600px;
-  min-height: 500px;
+  min-height: 520px;
   overflow: hidden;
   border-bottom: 1px solid var(--line);
 }
@@ -84,10 +79,7 @@
   inset:0;
   display:flex;
   width: 200%;
-  height: 100%;
   transform: translateX(0%);
-  will-change: transform;
-  overflow: hidden;
 }
 
 .heroTrack:not(.sliding){
@@ -101,12 +93,16 @@
 }
 
 .heroSlide{
-  flex: 0 0 50%;
   width: 50%;
   height: 100%;
   background-size: cover;
   background-position: center;
-  overflow: hidden;
+  animation: pan 12s linear forwards;
+}
+
+@keyframes pan{
+  from { transform: translateX(0%); }
+  to   { transform: translateX(-6%); }
 }
 
 .heroShade{
@@ -114,16 +110,16 @@
   inset:0;
   background: linear-gradient(
     90deg,
-    rgba(10,46,87,.62) 0%,
-    rgba(10,46,87,.36) 55%,
-    rgba(10,46,87,.13) 100%
+    rgba(10,46,87,.74) 0%,
+    rgba(10,46,87,.46) 55%,
+    rgba(10,46,87,.24) 100%
   );
 }
 
 .heroContent{
   position: relative;
   z-index: 2;
-  padding: 84px 0 24px;
+  padding: 84px 0 26px;
   color: #fff;
 }
 
@@ -131,23 +127,21 @@
   display:inline-flex;
   align-items:center;
   gap:10px;
-  padding: 8px 13px;
+  padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255,255,255,.11);
+  background: rgba(255,255,255,.10);
   border: 1px solid rgba(255,255,255,.22);
   backdrop-filter: blur(10px);
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: .07em;
+  letter-spacing: .08em;
   margin-bottom: 14px;
-  box-shadow: none;
 }
 
 .heroContent h1{
   font-size: 52px;
-  max-width: 1120px;
   margin: 0 0 10px;
-  letter-spacing: 0;
+  letter-spacing: -0.03em;
   line-height: 1.05;
 }
 .heroContent p{
@@ -190,7 +184,6 @@
   display:flex;
   align-items:center;
   justify-content:center;
-  min-width: 110px;
   padding: 13px 18px;
   background: var(--primary);
   color:#fff;
@@ -220,17 +213,16 @@
 
 /* Highlights */
 .heroHighlights{
-  margin-top: 20px;
+  margin-top: 18px;
   display:grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 
-  background: rgba(255,255,255,.11);
-  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.22);
   border-radius: 18px;
   padding: 12px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 12px 32px rgba(2,32,71,.10);
 }
 
 .hCard{
@@ -239,16 +231,16 @@
   gap: 12px;
   background: rgba(255,255,255,.94);
   border: 1px solid rgba(10,46,87,.10);
-  border-radius: 14px;
-  padding: 12px 13px;
-  box-shadow: 0 8px 20px rgba(2,32,71,.07);
+  border-radius: 16px;
+  padding: 12px 12px;
+  box-shadow: 0 12px 30px rgba(2,32,71,.12);
   color: #0b2b4b;
 }
 
 .hIcon{
   width: 38px;
   height: 38px;
-  border-radius: 12px;
+  border-radius: 14px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -277,7 +269,7 @@
   color: var(--primary);
   background: #fff;
   border: 1px solid rgba(10,46,87,.14);
-  padding: 8px 11px;
+  padding: 8px 10px;
   border-radius: 12px;
   flex: 0 0 auto;
 }
@@ -475,9 +467,7 @@
 
 @media (max-width: 980px){
   .heroContent{ padding: 62px 0 20px; }
-  .heroV2{ height: auto; min-height: 540px; }
-  .heroContent h1{ font-size: 36px; }
-  .heroContent p{ font-size: 15px; }
+  .heroContent h1{ font-size: 34px; }
   .heroHighlights{ grid-template-columns: 1fr; }
   .split{ grid-template-columns: 1fr; }
   .imgCard img{ height: 280px; }
@@ -488,7 +478,7 @@
 
 @media (max-width: 520px){
   .section{ padding: 36px 0; }
-  .heroV2{ height: auto; min-height: 540px; }
+  .heroV2{ min-height: 420px; }
   .heroContent{ padding: 44px 0 16px; }
   .heroContent h1{ font-size: 26px; }
   .heroContent p{ font-size: 14px; }
@@ -508,24 +498,14 @@
 .contactForm {
   max-width: 750px;
   margin: 0 auto;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 18px;
   padding: 32px;
   background: var(--card);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--line);
-}
-
-.contactField {
-  display: grid;
-  gap: 6px;
-}
-
-.contactField span {
-  color: #20344f;
-  font-size: 13px;
-  font-weight: 900;
 }
 
 .contactInput {

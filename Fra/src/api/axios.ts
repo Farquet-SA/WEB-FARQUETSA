@@ -13,7 +13,6 @@ if (!BASE_URL) {
 
 const instance = axios.create({
   baseURL: BASE_URL,
-  timeout: 15000,
   withCredentials: true, // envía la cookie HttpOnly del refresh token automáticamente
   headers: {
     Accept: "application/json",

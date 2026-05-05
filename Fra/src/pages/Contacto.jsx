@@ -7,25 +7,17 @@ export default function Contacto() {
   const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [enviando, setEnviando] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      nombre: nombre.trim(),
-      apellido: apellido.trim(),
-      email: email.trim(),
-      mensaje: mensaje.trim(),
-    };
-
-    if (!payload.nombre || !payload.apellido || !payload.email || payload.mensaje.length < 10) {
-      toast.error("Completa todos los campos. El mensaje debe tener al menos 10 caracteres.");
-      return;
-    }
 
     try {
-      setEnviando(true);
-      const data = await enviarContacto(payload);
+      const data = await enviarContacto({
+        nombre,
+        apellido,
+        email,
+        mensaje,
+      });
 
       toast.success(data.message || "Mensaje enviado correctamente.");
       setNombre("");
@@ -34,14 +26,7 @@ export default function Contacto() {
       setMensaje("");
     } catch (error) {
       console.error(error);
-      const detail =
-        error?.response?.data?.email?.[0] ||
-        error?.response?.data?.mensaje?.[0] ||
-        error?.response?.data?.detail ||
-        "Error al enviar mensaje. Intenta de nuevo.";
-      toast.error(detail);
-    } finally {
-      setEnviando(false);
+      toast.error("Error al enviar mensaje. Intenta de nuevo.");
     }
   };
 
@@ -136,66 +121,41 @@ export default function Contacto() {
           </p>
 
           <form className="contactForm" onSubmit={handleSubmit}>
-            <label className="contactField" htmlFor="contacto-nombre">
-              <span>Nombre</span>
-              <input
-                id="contacto-nombre"
-                className="contactInput"
-                type="text"
-                placeholder="Tu nombre"
-                value={nombre}
-                required
-                maxLength={80}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-            </label>
+            <input
+              className="contactInput"
+              type="text"
+              placeholder="Nombre*"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
 
-            <label className="contactField" htmlFor="contacto-apellido">
-              <span>Apellido</span>
-              <input
-                id="contacto-apellido"
-                className="contactInput"
-                type="text"
-                placeholder="Tu apellido"
-                value={apellido}
-                required
-                maxLength={80}
-                onChange={(e) => setApellido(e.target.value)}
-              />
-            </label>
+            <input
+              className="contactInput"
+              type="text"
+              placeholder="Apellido*"
+              value={apellido}
+              onChange={(e) => setApellido(e.target.value)}
+            />
 
-            <label className="contactField" htmlFor="contacto-email">
-              <span>Correo electrónico</span>
-              <input
-                id="contacto-email"
-                className="contactInput"
-                type="email"
-                placeholder="correo@ejemplo.com"
-                value={email}
-                required
-                maxLength={254}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </label>
+            <input
+              className="contactInput"
+              type="email"
+              placeholder="Email*"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-            <label className="contactField contactFieldFull" htmlFor="contacto-mensaje">
-              <span>Mensaje</span>
-              <textarea
-                id="contacto-mensaje"
-                className="contactInput contactTextarea"
-                rows={6}
-                placeholder="Cuéntanos qué necesitas cotizar o consultar"
-                value={mensaje}
-                required
-                minLength={10}
-                maxLength={2000}
-                onChange={(e) => setMensaje(e.target.value)}
-              />
-            </label>
+            <textarea
+              className="contactInput contactTextarea"
+              rows={6}
+              placeholder="Mensaje"
+              value={mensaje}
+              onChange={(e) => setMensaje(e.target.value)}
+            />
 
             <div className="contactFormActions">
-              <button type="submit" className="btnPrimary" disabled={enviando}>
-                {enviando ? "Enviando..." : "Enviar"}
+              <button type="submit" className="btnPrimary">
+                Enviar
               </button>
             </div>
           </form>

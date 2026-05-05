@@ -1,14 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import Pagination from "../../components/Pagination";
-import StatusBlock from "../../components/StatusBlock";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../../api/categories";
 
 const EMPTY_FORM = {
   nombre: "",
   descripcion: "",
 };
-const PAGE_SIZE = 10;
 
 export default function AdminCategorias() {
   const [categories, setCategories] = useState([]);
@@ -17,7 +14,6 @@ export default function AdminCategorias() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(1);
 
   const nextId = useRef(1);
 
@@ -112,13 +108,6 @@ export default function AdminCategorias() {
     }
   };
 
-  const paginatedCategories = useMemo(() => {
-    const totalPages = Math.max(1, Math.ceil(categories.length / PAGE_SIZE));
-    const safePage = Math.min(page, totalPages);
-    const start = (safePage - 1) * PAGE_SIZE;
-    return categories.slice(start, start + PAGE_SIZE);
-  }, [categories, page]);
-
   return (
     <div style={{ display: "grid", gap: 18 }}>
       {/* ── Formulario ─────────────────────────────────────────────── */}
@@ -137,32 +126,24 @@ export default function AdminCategorias() {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="adminFormGrid">
-          <div className="adminFieldGrid">
-            <div className="adminField">
-              <label htmlFor="categoria-nombre">Nombre de la categoría</label>
-              <input
-                id="categoria-nombre"
-                className="adminInput"
-                value={form.nombre}
-                onChange={(e) => setForm((prev) => ({ ...prev, nombre: e.target.value }))}
-                placeholder="Ej. Líquidos"
-                required
-              />
-            </div>
-            <div className="adminField">
-              <label htmlFor="categoria-descripcion">Descripción</label>
-              <input
-                id="categoria-descripcion"
-                className="adminInput"
-                value={form.descripcion}
-                onChange={(e) => setForm((prev) => ({ ...prev, descripcion: e.target.value }))}
-                placeholder="Uso interno opcional"
-              />
-            </div>
+        <form onSubmit={handleSubmit} style={{ display: "grid", gap: 14, marginTop: 18 }}>
+          <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+            <input
+              value={form.nombre}
+              onChange={(e) => setForm((prev) => ({ ...prev, nombre: e.target.value }))}
+              placeholder="Nombre de la categoría *"
+              required
+              style={inputStyle}
+            />
+            <input
+              value={form.descripcion}
+              onChange={(e) => setForm((prev) => ({ ...prev, descripcion: e.target.value }))}
+              placeholder="Descripción (opcional)"
+              style={inputStyle}
+            />
           </div>
 
-          {error && <StatusBlock title="Revisa la categoría" message={error} tone="error" icon="!" />}
+          {error && <div style={{ color: "#b42318", fontWeight: 700 }}>{error}</div>}
 
           <button type="submit" disabled={saving} style={submitBtnStyle}>
             {saving ? "Guardando..." : editingId ? "Actualizar categoría" : "Crear categoría"}
@@ -178,59 +159,41 @@ export default function AdminCategorias() {
         </p>
 
         {loading ? (
-          <StatusBlock
-            title="Cargando categorías"
-            message="Estamos consultando las categorías registradas."
-            tone="loading"
-            icon="..."
-          />
+          <div style={emptyBoxStyle}>Cargando categorías...</div>
         ) : categories.length === 0 ? (
-          <StatusBlock
-            title="Aún no hay categorías"
-            message="Crea categorías para ordenar mejor el catálogo de Farquetsa."
-            icon="0"
-          />
+          <div style={emptyBoxStyle}>No hay categorías creadas todavía.</div>
         ) : (
-          <>
-            <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-              {paginatedCategories.map((cat) => (
-                <article key={cat.id} style={rowStyle}>
-                  <div style={iconCircleStyle}>
-                    {cat.nombre.charAt(0).toUpperCase()}
-                  </div>
+          <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+            {categories.map((cat) => (
+              <article key={cat.id} style={rowStyle}>
+                <div style={iconCircleStyle}>
+                  {cat.nombre.charAt(0).toUpperCase()}
+                </div>
 
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 900, color: "#0b2b4b" }}>{cat.nombre}</div>
-                    {cat.descripcion && (
-                      <div style={{ color: "#5c6b7b", marginTop: 3, fontSize: 14 }}>
-                        {cat.descripcion}
-                      </div>
-                    )}
-                  </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 900, color: "#0b2b4b" }}>{cat.nombre}</div>
+                  {cat.descripcion && (
+                    <div style={{ color: "#5c6b7b", marginTop: 3, fontSize: 14 }}>
+                      {cat.descripcion}
+                    </div>
+                  )}
+                </div>
 
-                  <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                    <button type="button" onClick={() => handleEdit(cat)} style={secondaryBtnStyle}>
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(cat.id)}
-                      style={{ ...secondaryBtnStyle, color: "#b42318" }}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <Pagination
-              page={page}
-              totalItems={categories.length}
-              pageSize={PAGE_SIZE}
-              onPageChange={setPage}
-              itemLabel="categorías"
-            />
-          </>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={() => handleEdit(cat)} style={secondaryBtnStyle}>
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(cat.id)}
+                    style={{ ...secondaryBtnStyle, color: "#b42318" }}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
         )}
       </section>
     </div>
@@ -244,6 +207,13 @@ const sectionStyle = {
   borderRadius: 18,
   padding: 18,
   boxShadow: "0 8px 18px rgba(2, 32, 71, 0.06)",
+};
+
+const inputStyle = {
+  padding: 12,
+  borderRadius: 12,
+  border: "1px solid #e5edf7",
+  font: "inherit",
 };
 
 const submitBtnStyle = {
@@ -278,6 +248,13 @@ const secondaryBtnStyle = {
   color: "#0b2b4b",
 };
 
+const emptyBoxStyle = {
+  marginTop: 14,
+  borderRadius: 14,
+  border: "1px dashed #c9d8ee",
+  padding: 16,
+  color: "#5c6b7b",
+};
 
 const rowStyle = {
   border: "1px solid #e5edf7",

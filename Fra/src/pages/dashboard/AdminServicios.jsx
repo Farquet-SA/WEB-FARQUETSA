@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import Pagination from "../../components/Pagination";
-import StatusBlock from "../../components/StatusBlock";
 import {
   getServicios,
   createServicio,
@@ -23,7 +21,6 @@ const EMPTY_FORM = {
   text: "",
   section: "servicios",
 };
-const PAGE_SIZE = 10;
 
 export default function AdminServicios() {
   const [services, setServices] = useState([]);
@@ -38,36 +35,6 @@ export default function AdminServicios() {
   const [saving, setSaving] = useState(false);
 
   const [error, setError] = useState("");
-  const [pages, setPages] = useState({
-    servicios: 1,
-    pasos: 1,
-    confianza: 1,
-  });
-
-  const paginate = useCallback((data, sectionName) => {
-    const page = pages[sectionName] ?? 1;
-    const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
-    const safePage = Math.min(page, totalPages);
-    const start = (safePage - 1) * PAGE_SIZE;
-    return data.slice(start, start + PAGE_SIZE);
-  }, [pages]);
-
-  const paginatedServices = useMemo(
-    () => paginate(services, "servicios"),
-    [services, paginate],
-  );
-  const paginatedSteps = useMemo(
-    () => paginate(steps, "pasos"),
-    [steps, paginate],
-  );
-  const paginatedTrust = useMemo(
-    () => paginate(trust, "confianza"),
-    [trust, paginate],
-  );
-
-  const setSectionPage = (sectionName, page) => {
-    setPages((prev) => ({ ...prev, [sectionName]: page }));
-  };
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -206,20 +173,13 @@ export default function AdminServicios() {
     }
   };
 
-  const renderSection = (title, data, paginatedData, sectionName) => (
+  const renderSection = (title, data, sectionName) => (
     <section style={{ ...sectionStyle, boxShadow: "none" }}>
       <h2 style={{ margin: 0, color: "#0b2b4b" }}>{title}</h2>
 
-      {data.length === 0 ? (
-        <StatusBlock
-          title="Sin registros"
-          message="Agrega contenido para que esta sección se vea completa en el sitio público."
-          icon="0"
-        />
-      ) : (
-        <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-          {paginatedData.map((item) => (
-            <article key={item.id} style={rowStyle}>
+      <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+        {data.map((item) => (
+          <article key={item.id} style={rowStyle}>
             <div style={iconCircleStyle}>
               {item.icon || "🩺"}
             </div>
@@ -242,7 +202,6 @@ export default function AdminServicios() {
 
             <div style={{ display: "flex", gap: 8 }}>
               <button
-                type="button"
                 onClick={() => handleEdit(item, sectionName)}
                 style={secondaryBtnStyle}
               >
@@ -250,7 +209,6 @@ export default function AdminServicios() {
               </button>
 
               <button
-                type="button"
                 onClick={() => handleDelete(item.id, sectionName)}
                 style={{
                   ...secondaryBtnStyle,
@@ -260,19 +218,9 @@ export default function AdminServicios() {
                 Eliminar
               </button>
             </div>
-            </article>
-          ))}
-        </div>
-      )}
-      {data.length > 0 && (
-        <Pagination
-          page={pages[sectionName] ?? 1}
-          totalItems={data.length}
-          pageSize={PAGE_SIZE}
-          onPageChange={(page) => setSectionPage(sectionName, page)}
-          itemLabel="registros"
-        />
-      )}
+          </article>
+        ))}
+      </div>
     </section>
   );
 
@@ -284,26 +232,21 @@ export default function AdminServicios() {
         </h1>
 
         {loading && (
-          <StatusBlock
-            title="Cargando contenido"
-            message="Estamos consultando servicios, pasos y elementos de confianza."
-            tone="loading"
-            icon="..."
-          />
+          <p style={{ color: "#5c6b7b", margin: "10px 0 0" }}>
+            Cargando contenido...
+          </p>
         )}
         {error && (
-          <StatusBlock title="Revisa el contenido" message={error} tone="error" icon="!" />
+          <p style={{ color: "#b42318", margin: "10px 0 0", fontWeight: 700 }}>
+            {error}
+          </p>
         )}
 
         <form
           onSubmit={handleSubmit}
-          className="adminFormGrid"
+          style={{ display: "grid", gap: 14, marginTop: 18 }}
         >
-          <label className="adminField" htmlFor="contenido-seccion">
-            <span>Sección</span>
           <select
-            id="contenido-seccion"
-            className="adminInput"
             value={form.section}
             onChange={(e) =>
               setForm((prev) => ({
@@ -311,63 +254,49 @@ export default function AdminServicios() {
                 section: e.target.value,
               }))
             }
+            style={inputStyle}
           >
             <option value="servicios">Nuestros Servicios</option>
             <option value="pasos">Cómo trabajamos</option>
             <option value="confianza">Compromiso y confianza</option>
           </select>
-          </label>
 
-          <div className="adminFieldGrid">
-            <label className="adminField" htmlFor="contenido-icono">
-              <span>Icono o número</span>
-              <input
-                id="contenido-icono"
-                className="adminInput"
-                value={form.icon}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    icon: e.target.value,
-                  }))
-                }
-                placeholder="Ej. 1, ayuda, envío"
-              />
-            </label>
+          <input
+            value={form.icon}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                icon: e.target.value,
+              }))
+            }
+            placeholder="Emoji"
+            style={inputStyle}
+          />
 
-            <label className="adminField" htmlFor="contenido-titulo">
-              <span>Título</span>
-              <input
-                id="contenido-titulo"
-                className="adminInput"
-                value={form.title}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    title: e.target.value,
-                  }))
-                }
-                placeholder="Título visible"
-              />
-            </label>
-          </div>
+          <input
+            value={form.title}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                title: e.target.value,
+              }))
+            }
+            placeholder="Título"
+            style={inputStyle}
+          />
 
-          <label className="adminField" htmlFor="contenido-descripcion">
-            <span>Descripción</span>
-            <textarea
-              id="contenido-descripcion"
-              className="adminInput"
-              rows={4}
-              value={form.text}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  text: e.target.value,
-                }))
-              }
-              placeholder="Descripción visible en el sitio"
-            />
-          </label>
+          <textarea
+            rows={4}
+            value={form.text}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                text: e.target.value,
+              }))
+            }
+            placeholder="Descripción"
+            style={inputStyle}
+          />
 
           <button type="submit" style={submitBtnStyle}>
             {saving ? "Guardando..." : "Guardar"}
@@ -375,9 +304,9 @@ export default function AdminServicios() {
         </form>
       </section>
 
-      {renderSection("Nuestros Servicios", services, paginatedServices, "servicios")}
-      {renderSection("Cómo trabajamos", steps, paginatedSteps, "pasos")}
-      {renderSection("Compromiso y confianza", trust, paginatedTrust, "confianza")}
+      {renderSection("Nuestros Servicios", services, "servicios")}
+      {renderSection("Cómo trabajamos", steps, "pasos")}
+      {renderSection("Compromiso y confianza", trust, "confianza")}
     </div>
   );
 }
@@ -387,6 +316,13 @@ const sectionStyle = {
   border: "1px solid #e5edf7",
   borderRadius: 18,
   padding: 18,
+};
+
+const inputStyle = {
+  padding: 12,
+  borderRadius: 12,
+  border: "1px solid #e5edf7",
+  font: "inherit",
 };
 
 const submitBtnStyle = {
