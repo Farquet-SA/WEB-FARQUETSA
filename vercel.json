@@ -15,5 +15,6 @@
       "src": "/(.*)",
       "dest": "BAC/backend/wsgi.py"
     }
-  ]
+  ],
+  "buildCommand": "uv pip install -r BAC/requirements.txt --system && cd BAC && python manage.py migrate --noinput && python manage.py collectstatic --noinput"
 }
