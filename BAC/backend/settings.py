@@ -115,7 +115,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
@@ -157,6 +159,8 @@ DATABASES = {
     'default': get_database_config(),
 }
 
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -220,12 +224,15 @@ SIMPLE_JWT = {
 
 SIMPLE_JWT_REFRESH_COOKIE = "refresh_token"
 
-CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "").strip()
-CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "").strip()
-CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "").strip()
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME", "").strip(),
+    'API_KEY': os.getenv("CLOUDINARY_API_KEY", "").strip(),
+    'API_SECRET': os.getenv("CLOUDINARY_API_SECRET", "").strip(),
+}
+
 CLOUDINARY_UPLOAD_FOLDER = os.getenv(
     "CLOUDINARY_UPLOAD_FOLDER",
-    "rayito-pharmacy/productos",
+    "bac_images/products",
 ).strip()
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
