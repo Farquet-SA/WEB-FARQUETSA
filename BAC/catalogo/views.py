@@ -21,8 +21,8 @@ from rest_framework.decorators import api_view, permission_classes, action
 
 from django.utils import timezone
 
-from .models import Producto, Categoria, ImagenInformacion, Servicio, PasoProceso, Confianza, Historial, ConfiguracionSistema
-from .serializers import ProductoSerializer, CategoriaSerializer, ImagenInformacionSerializer, ServicioSerializer, PasoProcesoSerializer, ConfianzaSerializer
+from .models import Producto, Categoria, ImagenInformacion, Servicio, PasoProceso, Confianza, Historial, ConfiguracionSistema, Publicacion
+from .serializers import ProductoSerializer, CategoriaSerializer, ImagenInformacionSerializer, ServicioSerializer, PasoProcesoSerializer, ConfianzaSerializer, PublicacionSerializer
 from .cloudinary_service import upload_product_image
 
 
@@ -514,6 +514,53 @@ class ConfianzaViewSet(viewsets.ModelViewSet):
             "eliminar",
             "servicios",
             f"Eliminó el elemento de confianza {instance.title}"
+        )
+
+        return super().destroy(request, *args, **kwargs)
+    
+class PublicacionViewSet(viewsets.ModelViewSet):
+    queryset = Publicacion.objects.all()
+    serializer_class = PublicacionSerializer
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]
+        return [IsAdminUser()]
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+
+        registrar_historial(
+            request.user,
+            "crear",
+            "servicios",
+            f"Creó la publicación {response.data['title']}"
+        )
+
+        return response
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        response = super().update(request, *args, **kwargs)
+
+        registrar_historial(
+            request.user,
+            "editar",
+            "servicios",
+            f"Editó la publicación {instance.title}"
+        )
+
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        registrar_historial(
+            request.user,
+            "eliminar",
+            "servicios",
+            f"Eliminó la publicación {instance.title}"
         )
 
         return super().destroy(request, *args, **kwargs)

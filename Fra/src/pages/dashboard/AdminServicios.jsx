@@ -13,6 +13,11 @@ import {
   createConfianza,
   updateConfianza,
   deleteConfianza,
+  getPublicaciones,
+  createPublicacion,
+  updatePublicacion,
+  deletePublicacion,
+  uploadProductImage,
 } from "../../api/servicios";
 
 const EMPTY_FORM = {
@@ -20,12 +25,14 @@ const EMPTY_FORM = {
   title: "",
   text: "",
   section: "servicios",
+  image: null,
 };
 
 export default function AdminServicios() {
   const [services, setServices] = useState([]);
   const [steps, setSteps] = useState([]);
   const [trust, setTrust] = useState([]);
+  const [publications, setPublications] = useState([]);
 
   const [form, setForm] = useState(EMPTY_FORM);
 
@@ -36,6 +43,13 @@ export default function AdminServicios() {
 
   const [error, setError] = useState("");
 
+  useEffect(() => {
+  if (!(form.image instanceof File)) return;
+  const url = URL.createObjectURL(form.image);
+  // no uses createObjectURL directo en el src, usa este estado
+  return () => URL.revokeObjectURL(url);
+}, [form.image]);
+
   const loadData = useCallback(async () => {
     setLoading(true);
 
@@ -43,10 +57,12 @@ export default function AdminServicios() {
       const serviciosData = await getServicios();
       const pasosData = await getPasos();
       const confianzaData = await getConfianza();
+      const publicationsData = await getPublicaciones();
 
       setServices(Array.isArray(serviciosData) ? serviciosData : []);
       setSteps(Array.isArray(pasosData) ? pasosData : []);
       setTrust(Array.isArray(confianzaData) ? confianzaData : []);
+      setPublications(Array.isArray(publicationsData) ? publicationsData : []);
     } catch {
       toast.error("No se pudieron cargar los datos.");
     } finally {
@@ -75,7 +91,6 @@ export default function AdminServicios() {
     e.preventDefault();
 
     const validationError = validate();
-
     if (validationError) {
       setError(validationError);
       return;
@@ -85,6 +100,12 @@ export default function AdminServicios() {
     setError("");
 
     try {
+      
+      let imageUrl = form.image;
+      if (imageUrl instanceof File) {
+        imageUrl = await uploadProductImage(form.image); 
+      }
+
       const payload = {
         icon: form.icon.trim(),
         title: form.title.trim(),
@@ -107,7 +128,6 @@ export default function AdminServicios() {
           title: form.title.trim(),
           text: form.text.trim(),
         };
-
         if (editingId) {
           await updatePaso(editingId, pasoPayload);
           toast.success("Paso actualizado.");
@@ -127,10 +147,26 @@ export default function AdminServicios() {
         }
       }
 
+      if (form.section === "publicaciones") {
+        const pubPayload = {
+          icon: form.icon.trim(),
+          title: form.title.trim(),
+          text: form.text.trim(),
+          image: imageUrl || "",
+        };
+        if (editingId) {
+          await updatePublicacion(editingId, pubPayload);
+          toast.success("Publicación actualizada.");
+        } else {
+          await createPublicacion(pubPayload);
+          toast.success("Publicación creada.");
+        }
+      }
+
       await loadData();
       resetForm();
     } catch {
-      toast.error("Ocurrió un error al guardar.");
+      toast.error("Ocurrió un error al guardar, revise lo ingresado e intente nuevamente.");
     } finally {
       setSaving(false);
     }
@@ -140,10 +176,11 @@ export default function AdminServicios() {
     setEditingId(item.id);
 
     setForm({
-      icon: item.icon || "",
+      icon: item.icon || item.numero || "",
       title: item.title || "",
       text: item.text || "",
       section,
+      image: item.image || null, 
     });
 
     setError("");
@@ -165,6 +202,9 @@ export default function AdminServicios() {
       if (section === "confianza") {
         await deleteConfianza(id);
       }
+      if (section === "publicaciones") {
+        await deletePublicacion(id);
+      }
 
       await loadData();
       toast.success("Registro eliminado.");
@@ -180,8 +220,21 @@ export default function AdminServicios() {
       <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
         {data.map((item) => (
           <article key={item.id} style={rowStyle}>
+
+            {sectionName === "publicaciones" && (<img 
+                  src={
+                    item.image || "https://via.placeholder.com/92?text=Img"
+                  }
+                  
+                  style={{
+                    width: 92,
+                    height: 92,
+                    objectFit: "cover",
+                    borderRadius: 12,
+                  }}
+                />)}
             <div style={iconCircleStyle}>
-              {item.icon || "🩺"}
+              {item.icon || item.numero || "🩺"}
             </div>
 
             <div style={{ flex: 1 }}>
@@ -252,6 +305,7 @@ export default function AdminServicios() {
               setForm((prev) => ({
                 ...prev,
                 section: e.target.value,
+                image: null,
               }))
             }
             style={inputStyle}
@@ -259,6 +313,7 @@ export default function AdminServicios() {
             <option value="servicios">Nuestros Servicios</option>
             <option value="pasos">Cómo trabajamos</option>
             <option value="confianza">Compromiso y confianza</option>
+            <option value="publicaciones">Publicaciónes</option>
           </select>
 
           <input
@@ -269,7 +324,7 @@ export default function AdminServicios() {
                 icon: e.target.value,
               }))
             }
-            placeholder="Emoji"
+            placeholder="Emoji *"
             style={inputStyle}
           />
 
@@ -281,7 +336,7 @@ export default function AdminServicios() {
                 title: e.target.value,
               }))
             }
-            placeholder="Título"
+            placeholder="Título *"
             style={inputStyle}
           />
 
@@ -294,9 +349,62 @@ export default function AdminServicios() {
                 text: e.target.value,
               }))
             }
-            placeholder="Descripción"
+            placeholder="Descripción *"
             style={inputStyle}
           />
+
+          {form.section === "publicaciones" && (
+            <div
+              style={{
+                border: "1px dashed #c9d8ee",
+                borderRadius: 14,
+                padding: 14,
+                display: "grid",
+                gap: 12,
+                alignItems: "start",
+              }}
+            >
+              <label style={{ color: "#20344f", fontWeight: 700 }}>
+              Imagen del producto
+              </label>
+              <p>De preferencia, la imagen en formato horizontal</p>
+              <input
+                type="file"
+                accept="image/*" 
+                onChange={(e) => {
+                  const file = e.target.files[0]; 
+                  if (file) {
+                    setForm((prev) => ({
+                      ...prev,
+                      image: file,
+                    }));
+                  }
+                }}
+                style={inputStyle}
+              />
+              
+              {form.image && (
+                <div style={{ marginTop: 10 }}>
+                  <img 
+                    src={form.image instanceof File
+                        ? URL.createObjectURL(form.image)  
+                        : form.image                       
+                    }
+                    alt="Preview"
+                    style={{
+                      width: 160,
+                      height: 160,
+                      objectFit: "cover",
+                      borderRadius: 14,
+                      border: "1px solid #e5edf7",
+                    }}
+                  />
+                </div>
+              )}
+              
+              
+            </div>
+          )}
 
           <button type="submit" style={submitBtnStyle}>
             {saving ? "Guardando..." : "Guardar"}
@@ -307,6 +415,7 @@ export default function AdminServicios() {
       {renderSection("Nuestros Servicios", services, "servicios")}
       {renderSection("Cómo trabajamos", steps, "pasos")}
       {renderSection("Compromiso y confianza", trust, "confianza")}
+      {renderSection("Publicaciónes", publications, "publicaciones")}
     </div>
   );
 }

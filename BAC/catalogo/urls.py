@@ -11,7 +11,9 @@ from .views import (
     ProductoViewSet,
     ServicioViewSet,
     historial_list, 
-    configuracion_limpieza
+    configuracion_limpieza,
+    PublicacionViewSet
+
 )
 
 router = DefaultRouter()
@@ -22,6 +24,7 @@ router.register(r"imagenes-informacion", ImagenInformacionViewSet, basename="ima
 router.register(r"servicios",  ServicioViewSet, basename="servicios")
 router.register(r"pasos",  PasoProcesoViewSet, basename="pasos")
 router.register(r"confianza",  ConfianzaViewSet, basename="confianza")
+router.register(r"publicaciones",  PublicacionViewSet, basename="publicaciones")
 
 
 urlpatterns = [

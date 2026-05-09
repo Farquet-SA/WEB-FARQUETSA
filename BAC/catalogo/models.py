@@ -129,3 +129,12 @@ class Confianza(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Publicacion(models.Model):
+    icon = models.CharField(max_length=10)
+    title = models.CharField(max_length=255)
+    text = models.TextField()
+    image = models.URLField(blank=True)
+
+    def __str__(self):
+        return self.title

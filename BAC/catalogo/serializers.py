@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Producto, Categoria, ImagenInformacion, Servicio, PasoProceso, Confianza
+from .models import Producto, Categoria, ImagenInformacion, Servicio, PasoProceso, Confianza, Publicacion
 from .cloudinary_service import upload_product_image
 from django.utils.text import slugify
 from django.contrib.auth.models import User
@@ -208,6 +208,11 @@ class PasoProcesoSerializer(serializers.ModelSerializer):
 class ConfianzaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Confianza
+        fields = "__all__"
+
+class PublicacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Publicacion
         fields = "__all__"
 
 

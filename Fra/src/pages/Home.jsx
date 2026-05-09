@@ -4,12 +4,26 @@ import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
 import "./home.css";
 import { Link, useNavigate } from "react-router-dom";
+import { getPublicaciones } from "../api/servicios";
+import PublicacionesCarrusel from "../components/Carrusel_Publicaciones";
 
 export default function Home() {
   const { addItem } = useCart();
   const [products, setProducts] = useState([]);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
+  const [publicaciones, setPublicaciones] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getPublicaciones();
+        setPublicaciones(Array.isArray(data) ? data : data?.results ?? []);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, []);
 
   const slides = useMemo(
     () => [
@@ -246,6 +260,20 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+
+      <section className="section soft">
+        <div className="container">
+          <div className="centerHead">
+            <div className="kicker">Novedades</div>
+            <h2>Últimas Publicaciones</h2>
+            <p>Noticias, consejos y novedades del mundo farmacéutico.</p>
+            <PublicacionesCarrusel publicaciones={publicaciones} />
+          </div>
+        </div>
+      </section>
+      
+ 
 
       {/* INFO EMPRESA */}
       <section className="section soft">

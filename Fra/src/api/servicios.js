@@ -59,3 +59,29 @@ export const updateConfianza = async (id, payload) => {
 export const deleteConfianza = async (id) => {
   await api.delete(`/confianza/${id}/`);
 };
+
+export const getPublicaciones = async () => {
+  const { data } = await api.get("/publicaciones/");
+  return data;
+};
+
+export const createPublicacion = async (payload) => {
+  const { data } = await api.post("/publicaciones/", payload);
+  return data;
+};
+
+export const updatePublicacion = async (id, payload) => {
+  const { data } = await api.put(`/publicaciones/${id}/`, payload);
+  return data;
+};
+
+export const uploadProductImage = async (file) => {
+  const payload = new FormData();
+  payload.append("file", file, file.name || "upload.jpg");
+  const { data } = await api.post("/uploads/product-image/", payload);
+  return data?.url || "";
+};
+
+export const deletePublicacion = async (id) => {
+  await api.delete(`/publicaciones/${id}/`);
+};
