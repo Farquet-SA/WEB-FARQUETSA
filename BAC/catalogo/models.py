@@ -98,7 +98,8 @@ class Historial(models.Model):
         return f"{self.usuario} - {self.accion} - {self.modulo}"
 
 class ConfiguracionSistema(models.Model):
-    meses_retencion_historial = models.IntegerField(default=0) 
+    meses_retencion_historial = models.IntegerField(default=0)
+    productos_por_pagina = models.IntegerField(default=8)
 
     class Meta:
         verbose_name = "Configuración del Sistema"

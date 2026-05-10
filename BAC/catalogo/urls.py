@@ -12,6 +12,7 @@ from .views import (
     ServicioViewSet,
     historial_list, 
     configuracion_limpieza,
+    configuracion_paginacion,
     PublicacionViewSet
 
 )
@@ -32,6 +33,7 @@ urlpatterns = [
     path("uploads/product-image/", ProductImageUploadView.as_view(), name="product_image_upload"),
     path("historial/", historial_list),
     path("configuracion-limpieza/", configuracion_limpieza),
+    path("configuracion-paginacion/", configuracion_paginacion),
     path("contacto/", ContactoView.as_view(), name="contacto")
     ]
 

@@ -10,6 +10,7 @@ from rest_framework import viewsets
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.mail import send_mail
@@ -39,6 +40,15 @@ def _set_refresh_cookie(response, refresh_token):
         max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
         path="/api/auth/",
     )
+
+
+class DynamicProductPagination(PageNumberPagination):
+    page_size = 8 # valor por defecto
+    page_size_query_param = None  # clientes no pueden cambiarlo
+
+    def get_page_size(self, request):
+        config, _ = ConfiguracionSistema.objects.get_or_create(id=1)
+        return config.productos_por_pagina or 8
 
 
 class CookieLoginView(APIView):
@@ -157,6 +167,7 @@ class ProductoViewSet(ModelViewSet):
     queryset = Producto.objects.select_related("categoria").all().order_by("-updated_at")
     serializer_class = ProductoSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    pagination_class = DynamicProductPagination
 
     def get_permissions(self):
         # GET público (list/retrieve), escritura solo admin
@@ -345,6 +356,28 @@ def configuracion_limpieza(request):
         config.save()
         return Response({'status': 'Configuración actualizada'})
 
+@api_view(['GET', 'POST'])
+@permission_classes([IsSuperAdmin])
+def configuracion_paginacion(request):
+    config, _ = ConfiguracionSistema.objects.get_or_create(id=1)
+
+    if request.method == 'GET':
+        return Response({'productos_por_pagina': config.productos_por_pagina})
+
+    if request.method == 'POST':
+        valor = request.data.get('productos_por_pagina')
+        try:
+            valor = int(valor)
+            if valor < 1 or valor > 100:
+                return Response({'error': 'El valor debe estar entre 1 y 100.'}, status=status.HTTP_400_BAD_REQUEST)
+        except (TypeError, ValueError):
+            return Response({'error': 'Valor inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        config.productos_por_pagina = valor
+        config.save()
+        return Response({'status': 'Configuración actualizada', 'productos_por_pagina': valor})
+
+
 class ContactoView(APIView):
     permission_classes = [AllowAny]
 
@@ -357,12 +390,10 @@ class ContactoView(APIView):
         send_mail(
             subject="Nuevo mensaje desde formulario de contacto",
             message=f"""
-Nombre: {nombre}
-Apellido: {apellido}
-Correo: {email}
-
-Mensaje:
-{mensaje}
+                Nombre: {nombre}
+                Apellido: {apellido}
+                Correo: {email}
+                Mensaje: {mensaje}
             """,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[settings.CONTACT_RECEIVER_EMAIL],
