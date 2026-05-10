@@ -1,8 +1,8 @@
 import api from "./axios";
 
-export const getProducts = async () => {
-  const { data } = await api.get("/products/");
-  return data?.results ?? data;
+export const getProducts = async (page = 1) => {
+  const { data } = await api.get(`/products/?page=${page}`);
+  return data; // { count, next, previous, results }
 };
 
 export const getCategories = async () => {
@@ -29,4 +29,15 @@ export const updateProduct = async (id, payload) => {
 
 export const deleteProduct = async (id) => {
   await api.delete(`/products/${id}/`);
+};
+
+// Configuración de paginación — solo admin
+export const getPaginacionConfig = async () => {
+  const { data } = await api.get("/configuracion-paginacion/");
+  return data; // { productos_por_pagina }
+};
+
+export const setPaginacionConfig = async (productos_por_pagina) => {
+  const { data } = await api.post("/configuracion-paginacion/", { productos_por_pagina });
+  return data;
 };

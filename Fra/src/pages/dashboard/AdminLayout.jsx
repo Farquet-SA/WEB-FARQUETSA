@@ -45,6 +45,7 @@ export default function AdminLayout() {
                 <NavLink to="/admin/categorias" className={({ isActive }) => `adminNavLink${isActive ? " active" : ""}`}>Categorías</NavLink>
                 <NavLink to="/admin/servicios" className={({ isActive }) => `adminNavLink${isActive ? " active" : ""}`}>Servicios</NavLink>
                 <NavLink to="/admin/usuarios" className={({ isActive }) => `adminNavLink${isActive ? " active" : ""}`}>Usuarios</NavLink>
+                <NavLink to="/admin/configuracion" className={({ isActive }) => `adminNavLink${isActive ? " active" : ""}`}>Configuración</NavLink>
               </>
             )}
 

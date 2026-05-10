@@ -20,6 +20,7 @@ import AdminCategorias from "./pages/dashboard/AdminCategorias";
 import AdminUsuarios from "./pages/dashboard/AdminUsuarios";
 import AdminServicios from "./pages/dashboard/AdminServicios";
 import Historial from "./pages/dashboard/Historial";
+import SuperAdmin from "./pages/dashboard/SuperAdmin";
 
 export default function App() {
   return (
@@ -53,6 +54,7 @@ export default function App() {
               >
                 <Route path="historial" element={<Historial />} />
                 <Route path="usuarios" element={<AdminUsuarios />} />
+                <Route path="configuracion" element={<SuperAdmin />} />
               </Route>
             </Route>
           </Route>
