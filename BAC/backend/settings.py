@@ -101,7 +101,7 @@ ALLOWED_HOSTS = get_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
 
 CORS_ALLOWED_ORIGINS = get_list(
     "DJANGO_CORS_ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173",
+    "http://localhost:5173,http://127.0.0.1:5173,https://farquetsaweb.com,https://www.farquetsaweb.com",
 )
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = get_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
