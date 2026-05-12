@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { getProducts } from "../api/products";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
@@ -6,6 +7,7 @@ import "./productos.css";
 
 export default function ProductosPage() {
   const { addItem } = useCart();
+  const [searchParams] = useSearchParams();
 
   // --- datos del servidor ---
   const [products, setProducts] = useState([]);
@@ -59,7 +61,11 @@ const fetchPage = useCallback(async (page) => {
     fetchPage(1);
   }, [fetchPage]);
 
-  const totalPages = pageSize > 0 ? Math.ceil(totalCount / pageSize) : 1;
+  useEffect(() => {
+    setQ(searchParams.get("q") ?? "");
+  }, [searchParams]);
+
+  const totalPages = pageSize > 0 ? Math.max(1, Math.ceil(totalCount / pageSize)) : 1;
 
   // helpers
   const norm = (v) => String(v ?? "").trim().toLowerCase();

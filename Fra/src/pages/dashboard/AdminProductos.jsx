@@ -1,11 +1,11 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   createProduct,
   deleteProduct,
+  getAllProducts,
   getCategories,
-  getProducts,
   uploadProductImage,
   updateProduct,
 } from "../../api/products";
@@ -29,11 +29,13 @@ export default function AdminProductos() {
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["productos"],
-    queryFn: getProducts,
+    queryFn: () => getAllProducts(),
+    staleTime: 60_000,
   });
   const { data: categories = [] } = useQuery({
     queryKey: ["categorias"],
     queryFn: getCategories,
+    staleTime: 5 * 60_000,
   });
 
   const [form, setForm] = useState(EMPTY_FORM);
@@ -169,12 +171,23 @@ export default function AdminProductos() {
 
   const onFileChange = (event) => {
     const file = event.target.files?.[0] || null;
+    if (preview.startsWith("blob:")) {
+      URL.revokeObjectURL(preview);
+    }
     if (!file) {
       setPreview("");
       return;
     }
     setPreview(URL.createObjectURL(file));
   };
+
+  useEffect(() => {
+    return () => {
+      if (preview.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   return (
     <div style={{ display: "grid", gap: 18 }}>

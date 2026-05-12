@@ -169,6 +169,30 @@ class ProductoViewSet(ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     pagination_class = DynamicProductPagination
 
+    def get_queryset(self):
+        queryset = Producto.objects.select_related("categoria").all()
+        params = self.request.query_params
+
+        query = params.get("q", "").strip()
+        if query:
+            queryset = queryset.filter(nombre__icontains=query)
+
+        destacado = params.get("destacado")
+        if destacado is not None:
+            queryset = queryset.filter(
+                destacado=str(destacado).strip().lower() in {"1", "true", "yes", "si", "sí"}
+            )
+
+        estado = params.get("estado", "").strip().lower()
+        if estado in {choice.value for choice in Producto.Estado}:
+            queryset = queryset.filter(estado=estado)
+
+        categoria = params.get("categoria", "").strip()
+        if categoria:
+            queryset = queryset.filter(categoria_id=categoria)
+
+        return queryset.order_by("-updated_at")
+
     def get_permissions(self):
         # GET público (list/retrieve), escritura solo admin
         if self.action in ["list", "retrieve"]:

@@ -1,32 +1,10 @@
-import { useMemo } from "react";
 import { useCart } from "../context/CartContext";
+import { CONTACT_PHONE_TEL } from "../config/contact";
 import "./cartDrawer.css";
 
 export default function CartDrawer() {
   const { items, subtotal, count, isOpen, close, inc, dec, setQty, normalizeQty, removeItem, clear } = useCart();
   const total = subtotal;
-
-  const whatsappText = useMemo(() => {
-    if (items.length === 0) return "";
-
-    const lines = items.map((x) => {
-      const lineTotal = (Number(x.precio) || 0) * (Number(x.qty) || 0);
-      return `• ${x.nombre} x${x.qty} = Q${lineTotal.toFixed(2)}`;
-    });
-
-    return encodeURIComponent(
-      [
-        "Hola, me gustaría una cotización:",
-        "",
-        ...lines,
-        "",
-        `Total estimado: Q${total.toFixed(2)}`,
-      ].join("\n")
-    );
-  }, [items, total]);
-
-  const waHref =
-    items.length === 0 ? undefined : `https://wa.me/50242955547?text=${whatsappText}`;
 
   return (
     <>
@@ -138,9 +116,9 @@ export default function CartDrawer() {
               </div>
             </div>
 
-            <a className="cdWhats" href={waHref} target="_blank" rel="noreferrer">
-              <span style={{ fontSize: 18 }}>💬</span>
-              Enviar por WhatsApp
+            <a className="cdWhats" href={`tel:${CONTACT_PHONE_TEL}`}>
+              <span style={{ fontSize: 18 }}>☎</span>
+              Llamar para cotizar
             </a>
           </div>
         )}

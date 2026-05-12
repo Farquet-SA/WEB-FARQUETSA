@@ -1,8 +1,31 @@
 import api from "./axios";
 
-export const getProducts = async (page = 1) => {
-  const { data } = await api.get(`/products/?page=${page}`);
+export const getProducts = async (page = 1, filters = {}) => {
+  const params = new URLSearchParams({ page: String(page) });
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      params.set(key, String(value));
+    }
+  });
+
+  const { data } = await api.get(`/products/?${params.toString()}`);
   return data; // { count, next, previous, results }
+};
+
+export const getAllProducts = async (filters = {}) => {
+  const all = [];
+  let page = 1;
+  let hasNext = true;
+
+  while (hasNext && page <= 100) {
+    const data = await getProducts(page, filters);
+    const results = Array.isArray(data) ? data : data?.results ?? [];
+    all.push(...results);
+    hasNext = Boolean(data?.next);
+    page += 1;
+  }
+
+  return all;
 };
 
 export const getCategories = async () => {

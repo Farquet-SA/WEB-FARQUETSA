@@ -1,6 +1,6 @@
 .siteFooter {
   margin-top: 60px;
-  background: #eef2f6;
+  background: linear-gradient(180deg, #eef3f8 0%, #e8eef5 100%);
   border-top: 1px solid #dce5ee;
   color: #425466;
 }
@@ -8,22 +8,22 @@
 .siteFooterInner {
   width: min(1120px, calc(100% - 36px));
   margin: 0 auto;
-  padding: 34px 0 30px;
+  padding: 36px 0 32px;
   display: grid;
-  grid-template-columns: 1.25fr 0.9fr 1.6fr;
-  gap: 34px;
+  grid-template-columns: 1.35fr 1fr 0.9fr 1.15fr;
+  gap: 28px;
   align-items: start;
 }
 
 .footerBrandBlock {
   display: flex;
   gap: 14px;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .footerLogo {
-  width: 82px;
-  height: 82px;
+  width: 66px;
+  height: 66px;
   object-fit: contain;
   display: block;
   flex: 0 0 auto;
@@ -39,11 +39,20 @@
 .footerBrandBlock h2 {
   font-size: 21px;
   line-height: 1.15;
+  font-weight: var(--weight-bold);
 }
 
 .footerBrandBlock p,
 .footerSection p {
   margin: 7px 0 0;
+}
+
+.footerBrandBlock span {
+  display: block;
+  margin-top: 8px;
+  color: #5b6b7c;
+  line-height: 1.45;
+  max-width: 280px;
 }
 
 .footerSection {
@@ -54,7 +63,8 @@
 .footerSection h3 {
   font-size: 14px;
   text-transform: uppercase;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
+  letter-spacing: .06em;
 }
 
 .footerSection a {
@@ -63,26 +73,13 @@
   transition: color 0.15s ease;
 }
 
+.footerSection p {
+  color: #425466;
+  line-height: 1.45;
+}
+
 .footerSection a:hover {
   color: #0b2a4a;
-}
-
-.footerTeamGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px 16px;
-}
-
-.footerTeamGrid span {
-  line-height: 1.35;
-}
-
-.footerUniversity {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid #dce5ee;
-  color: #0b2a4a;
-  font-weight: 800;
 }
 
 .footerBottom {
@@ -115,7 +112,8 @@
     padding: 28px 0 24px;
   }
 
-  .footerTeamGrid {
-    grid-template-columns: 1fr;
+  .footerLogo {
+    width: 58px;
+    height: 58px;
   }
 }

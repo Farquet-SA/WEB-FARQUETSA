@@ -1,15 +1,18 @@
 .pCard{
   background: #fff;
   border: 1px solid #e5edf7;
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 10px 22px rgba(2, 32, 71, 0.08);
+  box-shadow: var(--shadow-card);
   transition: transform .16s ease, box-shadow .16s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .pCard:hover{
   transform: translateY(-3px);
-  box-shadow: 0 16px 30px rgba(2, 32, 71, 0.12);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .pImg{
@@ -28,19 +31,33 @@
 .pBadge{
   position:absolute;
   top:12px;
-  right:12px;
-  padding: 8px 12px;
+  left:12px;
+  right:auto;
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 7px 10px;
   border-radius: 999px;
-  font-weight: 900;
-  font-size: 13px;
-  border: 1px solid rgba(0,0,0,.08);
-  backdrop-filter: blur(8px);
+  font-weight: var(--weight-bold);
+  font-size: 11px;
+  line-height: 1;
+  border: 1px solid rgba(0,0,0,.06);
+  backdrop-filter: none;
+}
+
+.pBadge::before{
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+  flex: 0 0 7px;
 }
 
 /* colores por estado */
-.pBadge.ok{ background: rgba(205, 240, 225, .90); color:#0b5a3a; }
-.pBadge.warn{ background: rgba(255, 236, 197, .92); color:#92400e; }
-.pBadge.off{ background: rgba(255, 225, 225, .90); color:#8a1f1f; }
+.pBadge.ok{ background: rgba(209, 247, 225, .94); color:#0a8f37; }
+.pBadge.warn{ background: rgba(255, 239, 205, .94); color:#b45309; }
+.pBadge.off{ background: rgba(255, 225, 225, .94); color:#8a1f1f; }
 
 
 .pMeta{
@@ -60,7 +77,7 @@
   background: rgba(10,46,87,.06);
   border: 1px solid rgba(10,46,87,.12);
   color: #0A2E57;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
   font-size: 13px;
 }
 
@@ -78,12 +95,12 @@
 .pBtn{
   height: 40px;
   padding: 0 14px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   border: 1px solid #dbe7f7;
   background: #0A2E57;
   color: #fff;
-  font-weight: 800;
-  font-size: 14px;
+  font-weight: var(--weight-bold);
+  font-size: var(--fs-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -113,18 +130,19 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
 }
 
 .pCategory {
   font-size: 11px;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.06em;
   color: #6b7e97;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
 }
 
 .pTitle {
   font-size: 15px;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
   color: #0c1e33;
   min-height: 58px;
   display: -webkit-box;
@@ -137,7 +155,7 @@
 
 .pPrice {
   font-size: 17px;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
   color: #0A2E57;
 }
 
@@ -163,7 +181,7 @@
 /* el precio sube a la card directamente */
 .pPrice {
   font-size: 16px;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
   color: #0A2E57;
   margin-top: 4px;
 }
@@ -178,17 +196,33 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 16px;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 
 @media (max-width: 560px) {
   .modalBox {
     grid-template-columns: 1fr;
-    max-height: 85vh;
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
+    margin: auto 0;
   }
-  .modalImg { aspect-ratio: 4/3; }
+  .modalImg {
+    aspect-ratio: 4/3;
+    min-height: 0;
+  }
+  .modalContent {
+    padding: 22px 18px 20px;
+    max-height: none;
+    overflow: visible;
+  }
+  .modalTitle { font-size: 19px; }
+  .modalBottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .modalPrice { font-size: 22px; }
 }
 
 .modalClose {
@@ -207,14 +241,14 @@
   justify-content: center;
   z-index: 10;
   color: #0b2b4b;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
 }
 
 
 .modalTitle {
   margin: 0 0 12px;
   font-size: 22px;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
   color: #0c1e33;
   line-height: 1.25;
 }
@@ -230,7 +264,7 @@
 
 .modalPrice {
   font-size: 26px;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
   color: #0A2E57;
 }
 
@@ -255,15 +289,15 @@
 
 .modalExtraLabel {
   font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.7px;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.06em;
   color: #6b7e97;
   text-transform: uppercase;
 }
 
 .modalBox {
   background: #fff;
-  border-radius: 24px;
+  border-radius: 18px;
   max-width: 780px;
   width: 100%;
   display: grid;
@@ -292,4 +326,11 @@
   flex-direction: column;
   overflow-y: auto;
   max-height: 90vh;
+}
+
+.modalBottom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: auto;
 }

@@ -1,11 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
+const getVisibleCount = () => {
+  if (typeof window === "undefined") return 3;
+  if (window.innerWidth < 680) return 1;
+  if (window.innerWidth < 1024) return 2;
+  return 3;
+};
+
 export default function PublicacionesCarrusel({ publicaciones }) {
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState(null);
+  const [visible, setVisible] = useState(getVisibleCount);
   const trackRef = useRef(null);
 
-  const VISIBLE = 3; 
   const total = publicaciones.length;
 
   const prev = useCallback(() => {
@@ -27,6 +34,12 @@ export default function PublicacionesCarrusel({ publicaciones }) {
     return () => { document.body.style.overflow = ""; };
   }, [selected]);
 
+  useEffect(() => {
+    const handleResize = () => setVisible(getVisibleCount());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (!publicaciones.length) return null;
 
 
@@ -46,7 +59,7 @@ export default function PublicacionesCarrusel({ publicaciones }) {
                 style={{
                   display: "flex",
                   gap: 20,
-                  transform: `translateX(calc(-${offset * (100 / VISIBLE)}% - ${offset * 20 / VISIBLE}px))`,
+                  transform: `translateX(calc(-${offset * (100 / visible)}% - ${offset * 20 / visible}px))`,
                   transition: "transform 0.5s ease",
                 }}
               >
@@ -60,7 +73,7 @@ export default function PublicacionesCarrusel({ publicaciones }) {
                       key={i}
                       onClick={() => setSelected(pub)}
                       style={{
-                        minWidth: `calc(${100 / VISIBLE}% - ${20 * (VISIBLE - 1) / VISIBLE}px)`,
+                        minWidth: `calc(${100 / visible}% - ${20 * (visible - 1) / visible}px)`,
                         cursor: "pointer",
                         borderRadius: 16,
                         overflow: "hidden",

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { enviarContacto } from "../api/contacto";
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../config/contact";
+import "./home.css";
 
 export default function Contacto() {
   const [nombre, setNombre] = useState("");
@@ -56,9 +58,17 @@ export default function Contacto() {
               Comunicación directa con nuestro equipo para consultas,
               cotizaciones y coordinación de pedidos.
             </p>
-            <p style={{ marginTop: 12, fontWeight: 700 }}>
-              📞 +502 0000 0000
-            </p>
+            <a
+              href={`tel:${CONTACT_PHONE_TEL}`}
+              style={{
+                display: "inline-flex",
+                marginTop: 12,
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              📞 {CONTACT_PHONE_DISPLAY}
+            </a>
           </div>
 
           <div className="cardInfo">

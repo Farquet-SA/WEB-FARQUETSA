@@ -35,7 +35,7 @@
   backdrop-filter: blur(10px);
   z-index: 5;
 }
-.cdHeader h3{ margin:0; color:#0b2b4b; font-size:18px; letter-spacing: -.2px; }
+.cdHeader h3{ margin:0; color:#0b2b4b; font-size:18px; letter-spacing: 0; }
 .cdHeader p{ margin:6px 0 0; color:#6b7e97; font-size:12px; }
 
 /* Close button */
@@ -122,7 +122,7 @@
   background:#f6f9ff;
   cursor:pointer;
   color:#0b2b4b;
-  font-weight:22px;
+  font-weight:800;
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
 .cdQtyBtn:hover{
@@ -193,7 +193,7 @@
 .cdTrash:active{ transform: translateY(0); }
 
 .cdLineTotal{
-  font-weight:900;
+  font-weight:var(--weight-bold);
   color:#0b2b4b;
   align-self:center;
 }
@@ -217,7 +217,7 @@
   border-radius:14px;
   cursor:pointer;
   color:#0b2b4b;
-  font-weight:800;
+  font-weight:var(--weight-bold);
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
 .cdClear:hover{
@@ -245,18 +245,18 @@
   padding-top:10px;
   border-top:1px solid rgba(15, 39, 66, .10);
   font-size:14px;
-  font-weight:900;
+  font-weight:var(--weight-bold);
   color:#0b2b4b;
 }
 
-/* WhatsApp */
+/* Contact call action */
 .cdWhats{
   text-align:center;
   background:#0b2b4b;
   color:#fff;
   padding: 13px 14px;
   border-radius:16px;
-  font-weight:900;
+  font-weight:var(--weight-bold);
   text-decoration:none;
   display:flex;
   align-items:center;

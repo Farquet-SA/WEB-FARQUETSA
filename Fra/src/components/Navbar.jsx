@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { CONTACT_PHONE_TEL } from "../config/contact";
 import "./navbar.css";
 
 export default function Navbar() {
@@ -10,17 +11,22 @@ export default function Navbar() {
   return (
     <header className="navWrap">
       <div className="navInner">
-        <div className="brand">
+        <Link
+          className="brand"
+          to="/"
+          aria-label="Ir al inicio"
+          onClick={() => setMenuOpen(false)}
+        >
           <img
             className="brandLogo"
-            src="/logo-farquetsa.png"
+            src="/logo-farquetsa-header.png"
             alt="Logo de Farquetsa"
           />
           <div className="brandText">
             <strong>Farquetsa</strong>
             <span>Farmaceutica S.A</span>
           </div>
-        </div>
+        </Link>
 
         <nav className={`navLinks${menuOpen ? " open" : ""}`}>
           <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")} onClick={() => setMenuOpen(false)}>
@@ -43,7 +49,7 @@ export default function Navbar() {
             {count > 0 && <span className="cartBadge">{count}</span>}
           </button>
 
-          <a className="callBtn" href="tel:+50200000000">
+          <a className="callBtn" href={`tel:${CONTACT_PHONE_TEL}`}>
             Llamar Ahora
           </a>
 

@@ -35,6 +35,7 @@ export default function AdminServicios() {
   const [publications, setPublications] = useState([]);
 
   const [form, setForm] = useState(EMPTY_FORM);
+  const [imagePreview, setImagePreview] = useState("");
 
   const [editingId, setEditingId] = useState(null);
 
@@ -44,11 +45,15 @@ export default function AdminServicios() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-  if (!(form.image instanceof File)) return;
-  const url = URL.createObjectURL(form.image);
-  // no uses createObjectURL directo en el src, usa este estado
-  return () => URL.revokeObjectURL(url);
-}, [form.image]);
+    if (form.image instanceof File) {
+      const url = URL.createObjectURL(form.image);
+      setImagePreview(url);
+      return () => URL.revokeObjectURL(url);
+    }
+
+    setImagePreview(form.image || "");
+    return undefined;
+  }, [form.image]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -386,10 +391,7 @@ export default function AdminServicios() {
               {form.image && (
                 <div style={{ marginTop: 10 }}>
                   <img 
-                    src={form.image instanceof File
-                        ? URL.createObjectURL(form.image)  
-                        : form.image                       
-                    }
+                    src={imagePreview}
                     alt="Preview"
                     style={{
                       width: 160,

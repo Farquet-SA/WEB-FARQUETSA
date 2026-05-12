@@ -1,11 +1,73 @@
 import { useEffect, useMemo, useState } from "react";
 import { getProducts } from "../api/products";
 import { useCart } from "../context/CartContext";
-import ProductCard from "../components/ProductCard";
 import "./home.css";
 import { Link, useNavigate } from "react-router-dom";
 import { getPublicaciones } from "../api/servicios";
 import PublicacionesCarrusel from "../components/Carrusel_Publicaciones";
+
+function FeaturedProductCard({ product, onAdd }) {
+  const price = Number(product.precio || 0);
+  const categoria = product.categoria_nombre || "Otros";
+  const estado = String(product.estado || "disponible").toLowerCase();
+  const available = estado !== "agotado" && estado !== "descontinuado";
+
+  return (
+    <article className="featuredProductCard">
+      <div className="featuredProductTop">
+        <span className={`featuredProductBadge ${available ? "ok" : "off"}`}>
+          {available ? "Disponible" : "No disponible"}
+        </span>
+      </div>
+
+      <div className="featuredProductImage">
+        <img
+          src={product.imagen || "https://via.placeholder.com/600x420?text=Producto"}
+          alt={product.nombre}
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+
+      <div className="featuredProductBody">
+        <div className="featuredProductCategory">{categoria.toUpperCase()}</div>
+        <h3>{product.nombre}</h3>
+        <p>{product.descripcion || "Producto farmacéutico disponible para cotización."}</p>
+        <strong>Q {price.toFixed(2)}</strong>
+        <button
+          type="button"
+          disabled={!available}
+          onClick={(event) => {
+            event.stopPropagation();
+            onAdd(product);
+          }}
+        >
+          <svg
+            className="featuredCartIcon"
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M5 6h2l1.25 8.25a2 2 0 0 0 1.98 1.75h6.9a2 2 0 0 0 1.92-1.45L20 11H8.1"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M10 20h.01M17 20h.01"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </svg>
+          Agregar al carrito
+        </button>
+      </div>
+    </article>
+  );
+}
 
 export default function Home() {
   const { addItem } = useCart();
@@ -28,18 +90,18 @@ export default function Home() {
   const slides = useMemo(
     () => [
       {
-        img: "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1800&q=80",
+        img: "/hero/farquetsa-hero-1.jpg",
         title: "Tu Farmacia de Confianza en Guatemala",
         subtitle:
           "Medicamentos, salud y bienestar. Atención rápida, confiable y cercana.",
       },
       {
-        img: "https://elglobalfarma.com/wp-content/uploads/2024/10/GettyImages-878852718.jpg",
+        img: "/hero/farquetsa-hero-2.jpg",
         title: "Catálogo actualizado y disponible",
         subtitle: "Productos por estado y cotización rápida en minutos.",
       },
       {
-        img: "https://images.unsplash.com/photo-1584362917165-526a968579e8?auto=format&fit=crop&w=1800&q=80",
+        img: "/hero/farquetsa-hero-3.jpg",
         title: "Atención personalizada",
         subtitle: "Te asesoramos para elegir lo que necesitas con confianza.",
       },
@@ -74,6 +136,7 @@ export default function Home() {
   const [idx, setIdx] = useState(0);
   const [isSliding, setIsSliding] = useState(false);
   const [pendingIdx, setPendingIdx] = useState(null);
+  const [featuredIdx, setFeaturedIdx] = useState(0);
 
   const nextIdx = (idx + 1) % slides.length;
   const current = slides[idx];
@@ -100,8 +163,18 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await getProducts();
-        setProducts(Array.isArray(data) ? data : data?.results ?? []);
+        const destacados = await getProducts(1, { destacado: true });
+        const destacadosResults = Array.isArray(destacados)
+          ? destacados
+          : destacados?.results ?? [];
+
+        if (destacadosResults.length > 0) {
+          setProducts(destacadosResults);
+          return;
+        }
+
+        const catalogo = await getProducts(1);
+        setProducts(Array.isArray(catalogo) ? catalogo : catalogo?.results ?? []);
       } catch (e) {
         console.error(e);
       }
@@ -110,11 +183,32 @@ export default function Home() {
 
   const featured = useMemo(() => {
     const filtered = products.filter((p) =>
-      p?.destacado &&
       (p?.nombre ?? "").toLowerCase().includes(q.toLowerCase())
     );
-    return filtered.slice(0, 4);
+    return filtered.slice(0, 5);
   }, [products, q]);
+
+  const activeFeaturedIdx = featured.length ? featuredIdx % featured.length : 0;
+
+  const moveFeatured = (direction) => {
+    if (!featured.length) return;
+    setFeaturedIdx((currentIndex) =>
+      (currentIndex + direction + featured.length) % featured.length
+    );
+  };
+
+  const getFeaturedPosition = (index) => {
+    if (featured.length === 1) return "center";
+    let distance = index - activeFeaturedIdx;
+    const half = featured.length / 2;
+    if (distance > half) distance -= featured.length;
+    if (distance < -half) distance += featured.length;
+    if (distance === 0) return "center";
+    if (distance === -1) return "leftOne";
+    if (distance === 1) return "rightOne";
+    if (distance < 0) return "leftTwo";
+    return "rightTwo";
+  };
 
   const goSearch = (e) => {
     e.preventDefault();
@@ -196,118 +290,114 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BLOQUE PRO: 20 AÑOS */}
-      <section className="section">
-        <div className="container split">
-          <div className="splitLeft">
-            <div className="imgCard">
-              <img
-                src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=80"
-                alt="Farmacia"
-              />
-            </div>
-          </div>
-
-          <div className="splitRight">
-            <div className="kicker">Experiencia</div>
-            <h2 className="bigTitle">Más de 20 Años Sirviendo a Guatemala</h2>
-            <p className="muted">
-              En Farquetsa S.A, nos dedicamos a proporcionar los mejores
-              productos farmacéuticos y servicios de salud a toda Guatemala.
-              Nuestro equipo está listo para ayudarte con atención personalizada.
-            </p>
-
-            <div className="featureList">
-              <div className="featureItem">
-                <div className="checkIcon">✓</div>
-                <div>
-                  <strong>Farmacéuticos Certificados en Guatemala</strong>
-                  <div className="muted smallText">
-                    Personal calificado con años de experiencia
-                  </div>
-                </div>
-              </div>
-
-              <div className="featureItem">
-                <div className="checkIcon">✓</div>
-                <div>
-                  <strong>Productos de Calidad Internacional</strong>
-                  <div className="muted smallText">
-                    Solo trabajamos con marcas y laboratorios confiables
-                  </div>
-                </div>
-              </div>
-
-              <div className="featureItem">
-                <div className="checkIcon">✓</div>
-                <div>
-                  <strong>Atención en Toda Guatemala</strong>
-                  <div className="muted smallText">
-                    Servicio rápido y contacto directo para cotizaciones
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="splitActions">
-              <Link className="btnOutline" to="/contacto">
-                Contacto
-              </Link>
-              <Link className="btnPrimary" to="/productos">
-                Ver catálogo
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <section className="section soft">
+      {/* PRODUCTOS DESTACADOS */}
+      <section className="section soft featuredProducts">
         <div className="container">
           <div className="centerHead">
-            <div className="kicker">Novedades</div>
-            <h2>Últimas Publicaciones</h2>
-            <p>Noticias, consejos y novedades del mundo farmacéutico.</p>
-            <PublicacionesCarrusel publicaciones={publicaciones} />
+            <div className="kicker">Destacados</div>
+            <h2>Productos Destacados</h2>
+            <p>Encuentra los mejores productos farmacéuticos disponibles.</p>
+          </div>
+
+          {featured.length > 0 && (
+            <div className="featuredShowcase" aria-label="Productos destacados">
+              {featured.length > 1 && (
+                <button
+                  className="featuredArrow featuredArrowLeft"
+                  type="button"
+                  onClick={() => moveFeatured(-1)}
+                  aria-label="Producto destacado anterior"
+                >
+                  ‹
+                </button>
+              )}
+
+              <div className="featuredOrbit" aria-hidden="true" />
+              <div className="featuredStage">
+                {featured.map((p, index) => (
+                  <div
+                    className={`featuredSlot ${getFeaturedPosition(index)}`}
+                    key={p.id}
+                  >
+                    <FeaturedProductCard product={p} onAdd={addItem} />
+                  </div>
+                ))}
+              </div>
+
+              {featured.length > 1 && (
+                <button
+                  className="featuredArrow featuredArrowRight"
+                  type="button"
+                  onClick={() => moveFeatured(1)}
+                  aria-label="Siguiente producto destacado"
+                >
+                  ›
+                </button>
+              )}
+
+              {featured.length > 1 && (
+                <div className="featuredDots" aria-label="Seleccionar destacado">
+                  {featured.map((p, index) => (
+                    <button
+                      key={p.id}
+                      className={index === activeFeaturedIdx ? "active" : ""}
+                      type="button"
+                      onClick={() => setFeaturedIdx(index)}
+                      aria-label={`Ver producto destacado ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="centerCta">
+            <Link className="btnPrimary" to="/productos">
+              Ver Todos los Productos
+            </Link>
           </div>
         </div>
       </section>
-      
- 
 
       {/* INFO EMPRESA */}
-      <section className="section soft">
+      <section className="section aboutSection">
         <div className="container">
-          <div className="sectionHead">
-            <div>
+          <div className="aboutLayout">
+            <div className="aboutImageCard">
+              <img
+                src="/images/experiencia-farquetsa.png"
+                alt="Equipo de Laboratorio FARQUETSA en instalaciones de producción"
+              />
+            </div>
+
+            <div className="aboutContent">
               <div className="kicker">Nosotros</div>
               <h2>¿Quiénes Somos?</h2>
-              <p className="muted">
-                Somos una empresa comprometida con brindar productos de calidad y
-                atención cercana. Nuestro enfoque es servir a cada cliente con
-                confianza y responsabilidad.
-              </p>
+              <div className="aboutCopy">
+                <p>
+                  Laboratorio FARQUETSA es una empresa guatemalteca fundada en
+                  2007 por empresarios con más de 35 años de experiencia en el
+                  sector farmacéutico nacional y centroamericano.
+                </p>
+                <p>
+                  FARQUETSA cuenta con amplias instalaciones aprobadas por
+                  servicios de salud y cumple con estándares internacionales como
+                  las Buenas Prácticas de Manufactura (BPM), manteniéndose a la
+                  vanguardia en desarrollo y calidad.
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="grid3">
-            <div className="cardInfo">
-              <div className="cardTop">
-                <span className="chip">Historia</span>
-              </div>
-              <p>
-                FARQUETSA nace con el objetivo de acercar medicamentos y asesoría,
-                priorizando la atención humana y la rapidez.
-              </p>
-            </div>
-
+          <div className="grid3 aboutCards">
             <div className="cardInfo">
               <div className="cardTop">
                 <span className="chip">Misión</span>
               </div>
               <p>
-                Brindar acceso a productos farmacéuticos confiables, con servicio
-                ágil y orientación responsable.
+                Trabajamos de manera comprometida para el bienestar de la
+                sociedad, promoviendo la salud humana a través de la producción
+                de medicamentos de alta calidad, seguridad y confiabilidad.
               </p>
             </div>
 
@@ -316,10 +406,71 @@ export default function Home() {
                 <span className="chip">Visión</span>
               </div>
               <p>
-                Ser referente por nuestra atención, innovación y disponibilidad
-                de productos, creciendo junto a la comunidad.
+                Posicionarnos como uno de los laboratorios más importantes en el
+                mercado guatemalteco, reconocidos como una institución innovadora
+                y con altos estándares de calidad en nuestros procesos, productos
+                y servicio al cliente.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section soft qualitySection">
+        <div className="container">
+          <div className="qualityPanel">
+            <div className="qualityIntro">
+              <div className="kicker">Calidad certificada</div>
+              <h2>Buenas Prácticas de Manufactura</h2>
+              <p>
+                Las Buenas Prácticas de Manufactura (BPM) son un conjunto de
+                normas y procedimientos que garantizan que los productos
+                farmacéuticos y afines se elaboren bajo condiciones controladas,
+                seguras y estandarizadas, asegurando su calidad, eficacia y
+                pureza.
+              </p>
+            </div>
+
+            <div className="qualityBody">
+              <p>
+                Estas prácticas abarcan todos los aspectos del proceso de
+                producción: desde la selección de materias primas, la capacitación
+                del personal y la limpieza de las instalaciones, hasta el control
+                de procesos y la trazabilidad de cada lote.
+              </p>
+              <p>
+                En Farmacéutica Quetzalteca, S.A., nos enorgullece cumplir con
+                una calificación perfecta del 100% en Buenas Prácticas de
+                Manufactura, reflejo de nuestro compromiso absoluto con la
+                calidad, la seguridad y la excelencia operativa.
+              </p>
+            </div>
+
+            <div className="qualityStats" aria-label="Indicadores de calidad">
+              <div>
+                <strong>100%</strong>
+                <span>Calificación BPM</span>
+              </div>
+              <div>
+                <strong>Calidad</strong>
+                <span>Procesos controlados</span>
+              </div>
+              <div>
+                <strong>Confianza</strong>
+                <span>Trazabilidad por lote</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section soft">
+        <div className="container">
+          <div className="centerHead">
+            <div className="kicker">Novedades</div>
+            <h2>Últimas Publicaciones</h2>
+            <p>Noticias, consejos y novedades del mundo farmacéutico.</p>
+            <PublicacionesCarrusel publicaciones={publicaciones} />
           </div>
         </div>
       </section>
@@ -375,28 +526,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRODUCTOS DESTACADOS */}
-      <section className="section soft">
-        <div className="container">
-          <div className="centerHead">
-            <div className="kicker">Catálogo</div>
-            <h2>Productos Destacados</h2>
-            <p>Encuentra los mejores productos farmacéuticos disponibles.</p>
-          </div>
-
-          <div className="gridProducts">
-            {featured.map((p) => (
-              <ProductCard key={p.id} product={p} onAdd={addItem} />
-            ))}
-          </div>
-
-          <div className="centerCta">
-            <Link className="btnPrimary" to="/productos">
-              Ver Todos los Productos
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

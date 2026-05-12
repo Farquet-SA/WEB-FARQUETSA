@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./productCard.css";
 
 export default function ProductCard({ product, onAdd }) {
@@ -27,6 +27,15 @@ export default function ProductCard({ product, onAdd }) {
     setOpen(false);
   };
 
+  useEffect(() => {
+    if (!open) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
   return (
     <>
       {/* ── Card ─────────────────────────────────────── */}
@@ -36,6 +45,7 @@ export default function ProductCard({ product, onAdd }) {
             src={product.imagen || "https://via.placeholder.com/600x400?text=Producto"}
             alt={product.nombre}
             loading="lazy"
+            decoding="async"
           />
           <span className={`pBadge ${badge.cls}`}>{badge.text}</span>
         </div>
@@ -69,6 +79,7 @@ export default function ProductCard({ product, onAdd }) {
               <img
                 src={product.imagen || "https://via.placeholder.com/600x400?text=Producto"}
                 alt={product.nombre}
+                decoding="async"
               />
             </div>
 
