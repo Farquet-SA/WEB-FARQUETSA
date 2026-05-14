@@ -187,9 +187,11 @@ class ProductoViewSet(ModelViewSet):
         if estado in {choice.value for choice in Producto.Estado}:
             queryset = queryset.filter(estado=estado)
 
-        categoria = params.get("categoria", "").strip()
-        if categoria:
-            queryset = queryset.filter(categoria_id=categoria)
+        # Soporte para una o varias categorías: ?categoria=1&categoria=2
+        categorias = params.getlist("categoria")
+        categorias = [c.strip() for c in categorias if c.strip()]
+        if categorias:
+            queryset = queryset.filter(categoria_id__in=categorias)
 
         return queryset.order_by("-updated_at")
 
