@@ -172,7 +172,6 @@ class ProductoViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = Producto.objects.select_related("categoria").all()
         params = self.request.query_params
-
         query = params.get("q", "").strip()
         if query:
             queryset = queryset.filter(nombre__icontains=query)
@@ -187,11 +186,24 @@ class ProductoViewSet(ModelViewSet):
         if estado in {choice.value for choice in Producto.Estado}:
             queryset = queryset.filter(estado=estado)
 
-        # Soporte para una o varias categorías: ?categoria=1&categoria=2
         categorias = params.getlist("categoria")
         categorias = [c.strip() for c in categorias if c.strip()]
         if categorias:
             queryset = queryset.filter(categoria_id__in=categorias)
+
+        precio_min = params.get("precio_min")
+        if precio_min:
+            try:
+                queryset = queryset.filter(precio__gte=float(precio_min))
+            except ValueError:
+                pass
+
+        precio_max = params.get("precio_max")
+        if precio_max:
+            try:
+                queryset = queryset.filter(precio__lte=float(precio_max))
+            except ValueError:
+                pass
 
         return queryset.order_by("-updated_at")
 

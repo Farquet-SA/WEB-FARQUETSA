@@ -25,14 +25,35 @@ export default function ProductosPage() {
   const [sort, setSort] = useState("relevancia");
   const [selectedCats, setSelectedCats] = useState(new Set());
   const [selectedStates, setSelectedStates] = useState(new Set());
-  const [priceMin, setPriceMin] = useState("");
-  const [priceMax, setPriceMax] = useState("");
+  const [priceMin, setPriceMin] = useState(0);   // se manda al backend (al soltar)
+  const [priceMax, setPriceMax] = useState(0);
+  const [sliderMin, setSliderMin] = useState(0);   // solo visual (mientras se mueve)
+  const [sliderMax, setSliderMax] = useState(0);
+  const [priceBounds, setPriceBounds] = useState({ min: 0, max: 0 });
 
-  // Cargar categorías una sola vez
+  // Cargar categorías y bounds de precio una sola vez
   useEffect(() => {
     getCategories()
       .then((data) => setCategories(Array.isArray(data) ? data : []))
       .catch(() => setCategories([]));
+
+    // Pedir todos los precios al backend para calcular bounds reales
+    getProducts(1, { page_size: 1000 })
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data?.results ?? [];
+        const nums = list.map((p) => Number(p?.precio)).filter((n) => Number.isFinite(n));
+        if (nums.length) {
+          const min = 0;
+          const max = Math.ceil(Math.max(...nums));
+          setPriceBounds({ min, max });
+          setPriceMin(min);
+          setPriceMax(min);
+          setSliderMin(min);
+          setSliderMax(max);
+          setPriceMax(max);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Sincronizar q con searchParams
@@ -64,10 +85,8 @@ export default function ProductosPage() {
         if (selectedStates.size === 1) {
           filters.estado = [...selectedStates][0].toLowerCase();
         }
-        // precio_min / precio_max solo si el backend los soporta
-        // (agregalos en get_queryset si los necesitas)
-        if (priceMin !== "") filters.precio_min = priceMin;
-        if (priceMax !== "") filters.precio_max = priceMax;
+        if (priceMin !== priceBounds.min) filters.precio_min = priceMin;
+        if (priceMax !== priceBounds.max) filters.precio_max = priceMax;
 
         const data = await getProducts(page, filters);
         const list = Array.isArray(data) ? data : data?.results ?? [];
@@ -77,6 +96,7 @@ export default function ProductosPage() {
         setTotalCount(count);
         if (page === 1) setPageSize(list.length || 12);
         setCurrentPage(page);
+
       } catch (e) {
         console.error("Error cargando productos", e);
         setProducts([]);
@@ -187,6 +207,32 @@ export default function ProductosPage() {
         {/* Sidebar filtros */}
         <aside className="filters">
           <h3>Filtros</h3>
+
+          <div className="filterBlock">
+            <p className="filterLabel">Rango de Precio</p>
+            <div className="rangeValues">
+              <span>Q{sliderMin}</span>
+              <span>Q{sliderMax}</span>
+            </div>
+            <div className="rangeWrap">
+              <input type="range" min={priceBounds.min} max={priceBounds.max} value={sliderMin}
+                onChange={(e) => setSliderMin(Math.min(Number(e.target.value), sliderMax))}
+                onMouseUp={(e) => setPriceMin(Math.min(Number(e.target.value), sliderMax))}
+                onTouchEnd={(e) => setPriceMin(Math.min(Number(e.target.value), sliderMax))}
+                className="rangeInput" />
+              <input type="range" min={priceBounds.min} max={priceBounds.max} value={sliderMax}
+                onChange={(e) => setSliderMax(Math.max(Number(e.target.value), sliderMin))}
+                onMouseUp={(e) => setPriceMax(Math.max(Number(e.target.value), sliderMin))}
+                onTouchEnd={(e) => setPriceMax(Math.max(Number(e.target.value), sliderMin))}
+                className="rangeInput" />
+            </div>
+            <button className="clearBtn" type="button"
+              onClick={() => { setPriceMin(priceBounds.min); setPriceMax(priceBounds.max); setSliderMin(priceBounds.min); setSliderMax(priceBounds.max); }}
+              disabled={priceMin === priceBounds.min && priceMax === priceBounds.max}>
+              Limpiar precio
+            </button>
+            <p className="hint">Mostrando productos entre Q{sliderMin} y Q{sliderMax}.</p>
+          </div>
 
           <div className="filterBlock">
             <p className="filterLabel">Estado</p>
