@@ -8,6 +8,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .pCard:hover{
@@ -54,18 +55,15 @@
   flex: 0 0 7px;
 }
 
-/* colores por estado */
 .pBadge.ok{ background: rgba(209, 247, 225, .94); color:#0a8f37; }
 .pBadge.warn{ background: rgba(255, 239, 205, .94); color:#b45309; }
 .pBadge.off{ background: rgba(255, 225, 225, .94); color:#8a1f1f; }
-
 
 .pMeta{
   display:flex;
   align-items:center;
   justify-content:space-between;
 }
-
 
 .pTag{
   width: 28px;
@@ -81,16 +79,53 @@
   font-size: 13px;
 }
 
+.pDesc{ display: none; }
 
-.pDesc{
-  margin:0;
-  font-size:12px;
-  color:#6b7e97;
-  min-height: 32px;
+.pBody {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
 }
 
+.pCategory {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #6b7e97;
+  font-weight: var(--weight-bold);
+}
 
+.pTitle {
+  font-size: 15px;
+  font-weight: var(--weight-bold);
+  color: #0c1e33;
+  min-height: 58px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+  margin: 2px 0 4px;
+}
 
+.pPrice {
+  font-size: 16px;
+  font-weight: var(--weight-bold);
+  color: #0A2E57;
+  margin-top: 4px;
+}
+
+.pBottom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid #f0f4fa;
+}
 
 .pBtn{
   height: 40px;
@@ -124,68 +159,6 @@
   cursor: not-allowed;
 }
 
-
-.pBody {
-  padding: 16px 18px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-}
-
-.pCategory {
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: #6b7e97;
-  font-weight: var(--weight-bold);
-}
-
-.pTitle {
-  font-size: 15px;
-  font-weight: var(--weight-bold);
-  color: #0c1e33;
-  min-height: 58px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
-  margin: 2px 0 4px;
-}
-
-.pPrice {
-  font-size: 17px;
-  font-weight: var(--weight-bold);
-  color: #0A2E57;
-}
-
-.pBottom {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: auto;
-  padding-top: 8px;
-  border-top: 1px solid #f0f4fa;
-}
-
-
-.pCard {
-  cursor: pointer;
-}
-
-/* quitamos desc de la card */
-.pDesc { display: none; }
-
-/* el precio sube a la card directamente */
-.pPrice {
-  font-size: 16px;
-  font-weight: var(--weight-bold);
-  color: #0A2E57;
-  margin-top: 4px;
-}
-
 /* ── Modal ───────────────────────────────────────── */
 .modalOverlay {
   position: fixed;
@@ -200,29 +173,38 @@
   overflow-y: auto;
 }
 
+.modalBox {
+  background: #fff;
+  border-radius: 18px;
+  max-width: 780px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(2, 32, 71, 0.18);
+  max-height: 90vh;
+  margin: auto;
+}
 
-@media (max-width: 560px) {
-  .modalBox {
-    grid-template-columns: 1fr;
-    max-height: none;
-    overflow: visible;
-    margin: auto 0;
-  }
-  .modalImg {
-    aspect-ratio: 4/3;
-    min-height: 0;
-  }
-  .modalContent {
-    padding: 22px 18px 20px;
-    max-height: none;
-    overflow: visible;
-  }
-  .modalTitle { font-size: 19px; }
-  .modalBottom {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .modalPrice { font-size: 22px; }
+.modalImg {
+  overflow: hidden;
+  min-height: 100%;
+}
+
+.modalImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.modalContent {
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
 .modalClose {
@@ -244,7 +226,6 @@
   font-weight: var(--weight-bold);
 }
 
-
 .modalTitle {
   margin: 0 0 12px;
   font-size: 22px;
@@ -260,7 +241,6 @@
   margin: 0 0 20px;
   flex: 1;
 }
-
 
 .modalPrice {
   font-size: 26px;
@@ -295,42 +275,51 @@
   text-transform: uppercase;
 }
 
-.modalBox {
-  background: #fff;
-  border-radius: 18px;
-  max-width: 780px;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 24px 60px rgba(2, 32, 71, 0.18);
-  max-height: 90vh;
-}
-
-.modalImg {
-  overflow: hidden;
-  min-height: 100%;
-}
-
-.modalImg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.modalContent {
-  padding: 32px 28px;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  max-height: 90vh;
-}
-
 .modalBottom {
   display: flex;
   align-items: center;
   gap: 14px;
   margin-top: auto;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 560px) {
+  .modalOverlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modalBox {
+    grid-template-columns: 1fr;
+    max-height: 92dvh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    margin: 0;
+  }
+
+  .modalImg {
+    aspect-ratio: 4/3;
+    min-height: 0;
+    max-height: 220px;
+  }
+
+  .modalContent {
+    padding: 22px 18px 28px;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .modalTitle { font-size: 19px; }
+
+  .modalBottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modalPrice { font-size: 22px; }
+
+  .pBtn {
+    height: 48px;
+    font-size: 15px;
+  }
 }
