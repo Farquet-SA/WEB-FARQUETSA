@@ -422,6 +422,7 @@ class ContactoView(APIView):
     def post(self, request):
         nombre = request.data.get("nombre")
         apellido = request.data.get("apellido")
+        telefono = request.data.get("telefono")
         email = request.data.get("email")
         mensaje = request.data.get("mensaje")
 
@@ -429,6 +430,7 @@ class ContactoView(APIView):
             subject="Nuevo mensaje desde formulario de contacto",
             message=f"""
                 Nombre: {nombre}
+                Telefono : {telefono}
                 Apellido: {apellido}
                 Correo: {email}
                 Mensaje: {mensaje}
