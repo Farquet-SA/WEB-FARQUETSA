@@ -8,6 +8,7 @@ export default function Contacto() {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState("");
   const [mensaje, setMensaje] = useState("");
 
   const handleSubmit = async (e) => {
@@ -17,6 +18,7 @@ export default function Contacto() {
       const data = await enviarContacto({
         nombre,
         apellido,
+        telefono,
         email,
         mensaje,
       });
@@ -25,6 +27,7 @@ export default function Contacto() {
       setNombre("");
       setApellido("");
       setEmail("");
+      setTelefono("");
       setMensaje("");
     } catch (error) {
       console.error(error);
@@ -153,6 +156,15 @@ export default function Contacto() {
               placeholder="Email*"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <input
+              className="contactInput"
+              type="tel"
+              placeholder="Teléfono*"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              required
             />
 
             <textarea
