@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  getServicios,
-  getPasos,
-  getConfianza,
-} from "../api/servicios";
+import { getServicios, getPasos, getConfianza } from "../api/servicios";
 import "./servicios.css";
+import { Send, BriefcaseBusiness, Lock } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 
 export default function ServiciosPage() {
   const [services, setServices] = useState([]);
@@ -23,7 +21,7 @@ export default function ServiciosPage() {
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     nodes.forEach((n) => io.observe(n));
@@ -42,19 +40,17 @@ export default function ServiciosPage() {
         setServices(
           Array.isArray(serviciosData)
             ? serviciosData
-            : serviciosData.results || []
+            : serviciosData.results || [],
         );
 
         setSteps(
-          Array.isArray(pasosData)
-            ? pasosData
-            : pasosData.results || []
+          Array.isArray(pasosData) ? pasosData : pasosData.results || [],
         );
 
         setTrust(
           Array.isArray(confianzaData)
             ? confianzaData
-            : confianzaData.results || []
+            : confianzaData.results || [],
         );
       } catch (error) {
         console.error("Error cargando datos:", error);
@@ -147,7 +143,14 @@ export default function ServiciosPage() {
                 style={{ transitionDelay: `${(i % 6) * 60}ms` }}
               >
                 <div className="serviceIcon" aria-hidden="true">
-                  {s.icon}
+                  {(() => {
+                    const IconComp = LucideIcons[s.icon];
+                    return IconComp ? (
+                      <IconComp size={24} />
+                    ) : (
+                      <span>{s.icon}</span>
+                    );
+                  })()}
                 </div>
 
                 <h3>{s.title}</h3>
@@ -178,7 +181,16 @@ export default function ServiciosPage() {
                 className="processStep reveal from-up"
                 style={{ transitionDelay: `${i * 80}ms` }}
               >
-                <div className="stepBadge">{st.numero}</div>
+                <div className="stepBadge">
+                  {(() => {
+                    const IconComp = LucideIcons[st.numero];
+                    return IconComp ? (
+                      <IconComp size={24} />
+                    ) : (
+                      <span>{st.numero}</span>
+                    );
+                  })()}
+                </div>{" "}
                 <h4>{st.title}</h4>
                 <p>{st.text}</p>
               </div>
@@ -205,14 +217,19 @@ export default function ServiciosPage() {
               <div
                 key={t.id}
                 className={`trustCard reveal ${
-                  i === 1
-                    ? "from-up"
-                    : i === 0
-                    ? "from-left"
-                    : "from-right"
+                  i === 1 ? "from-up" : i === 0 ? "from-left" : "from-right"
                 }`}
               >
-                <div className="trustIcon">{t.icon}</div>
+                <div className="trustIcon">
+                  {(() => {
+                    const IconComp = LucideIcons[t.icon];
+                    return IconComp ? (
+                      <IconComp size={24} />
+                    ) : (
+                      <span>{t.icon}</span>
+                    );
+                  })()}
+                </div>
                 <strong>{t.title}</strong>
                 <p>{t.text}</p>
               </div>

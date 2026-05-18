@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import IconPicker from "./SelectorIconos";
+import * as LucideIcons from "lucide-react";
+
 import {
   getServicios,
   createServicio,
@@ -105,10 +108,9 @@ export default function AdminServicios() {
     setError("");
 
     try {
-      
       let imageUrl = form.image;
       if (imageUrl instanceof File) {
-        imageUrl = await uploadProductImage(form.image); 
+        imageUrl = await uploadProductImage(form.image);
       }
 
       const payload = {
@@ -171,7 +173,9 @@ export default function AdminServicios() {
       await loadData();
       resetForm();
     } catch {
-      toast.error("Ocurrió un error al guardar, revise lo ingresado e intente nuevamente.");
+      toast.error(
+        "Ocurrió un error al guardar, revise lo ingresado e intente nuevamente.",
+      );
     } finally {
       setSaving(false);
     }
@@ -185,7 +189,7 @@ export default function AdminServicios() {
       title: item.title || "",
       text: item.text || "",
       section,
-      image: item.image || null, 
+      image: item.image || null,
     });
 
     setError("");
@@ -217,77 +221,70 @@ export default function AdminServicios() {
       toast.error("No se pudo eliminar.");
     }
   };
-
   const renderSection = (title, data, sectionName) => (
     <section style={{ ...sectionStyle, boxShadow: "none" }}>
       <h2 style={{ margin: 0, color: "#0b2b4b" }}>{title}</h2>
 
       <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-        {data.map((item) => (
-          <article key={item.id} style={rowStyle}>
+        {data.map((item) => {
+          const iconKey = item.icon || item.numero;
+          const IconComp = LucideIcons[iconKey];
 
-            {sectionName === "publicaciones" && (<img 
-                  src={
-                    item.image || "https://via.placeholder.com/92?text=Img"
-                  }
-                  
+          return (
+            <article key={item.id} style={rowStyle}>
+              {sectionName === "publicaciones" && (
+                <img
+                  src={item.image || "https://via.placeholder.com/92?text=Img"}
                   style={{
                     width: 92,
                     height: 92,
                     objectFit: "cover",
                     borderRadius: 12,
                   }}
-                />)}
-            <div style={iconCircleStyle}>
-              {item.icon || item.numero || "🩺"}
-            </div>
+                />
+              )}
 
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 900, color: "#0b2b4b" }}>
-                {item.title}
+              <div style={iconCircleStyle}>
+                {IconComp ? (
+                  <IconComp size={22} color="#0b2b4b" />
+                ) : (
+                  <span>{iconKey || "🩺"}</span>
+                )}
               </div>
 
-              <div
-                style={{
-                  color: "#5c6b7b",
-                  marginTop: 3,
-                  fontSize: 14,
-                }}
-              >
-                {item.text}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 900, color: "#0b2b4b" }}>
+                  {item.title}
+                </div>
+                <div style={{ color: "#5c6b7b", marginTop: 3, fontSize: 14 }}>
+                  {item.text}
+                </div>
               </div>
-            </div>
 
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                onClick={() => handleEdit(item, sectionName)}
-                style={secondaryBtnStyle}
-              >
-                Editar
-              </button>
-
-              <button
-                onClick={() => handleDelete(item.id, sectionName)}
-                style={{
-                  ...secondaryBtnStyle,
-                  color: "#b42318",
-                }}
-              >
-                Eliminar
-              </button>
-            </div>
-          </article>
-        ))}
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => handleEdit(item, sectionName)}
+                  style={secondaryBtnStyle}
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id, sectionName)}
+                  style={{ ...secondaryBtnStyle, color: "#b42318" }}
+                >
+                  Eliminar
+                </button>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
-
   return (
     <div style={{ display: "grid", gap: 18 }}>
       <section style={sectionStyle}>
-        <h1 style={{ margin: 0, color: "#0b2b4b" }}>
-          Administrar contenido
-        </h1>
+        <h1 style={{ margin: 0, color: "#0b2b4b" }}>Administrar contenido</h1>
 
         {loading && (
           <p style={{ color: "#5c6b7b", margin: "10px 0 0" }}>
@@ -321,16 +318,11 @@ export default function AdminServicios() {
             <option value="publicaciones">Publicaciónes</option>
           </select>
 
-          <input
+          <IconPicker
             value={form.icon}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                icon: e.target.value,
-              }))
+            onChange={(iconName) =>
+              setForm((prev) => ({ ...prev, icon: iconName }))
             }
-            placeholder="Emoji *"
-            style={inputStyle}
           />
 
           <input
@@ -370,14 +362,14 @@ export default function AdminServicios() {
               }}
             >
               <label style={{ color: "#20344f", fontWeight: 700 }}>
-              Imagen del producto
+                Imagen del producto
               </label>
               <p>De preferencia, la imagen en formato horizontal</p>
               <input
                 type="file"
-                accept="image/*" 
+                accept="image/*"
                 onChange={(e) => {
-                  const file = e.target.files[0]; 
+                  const file = e.target.files[0];
                   if (file) {
                     setForm((prev) => ({
                       ...prev,
@@ -387,10 +379,10 @@ export default function AdminServicios() {
                 }}
                 style={inputStyle}
               />
-              
+
               {form.image && (
                 <div style={{ marginTop: 10 }}>
-                  <img 
+                  <img
                     src={imagePreview}
                     alt="Preview"
                     style={{
@@ -403,8 +395,6 @@ export default function AdminServicios() {
                   />
                 </div>
               )}
-              
-              
             </div>
           )}
 

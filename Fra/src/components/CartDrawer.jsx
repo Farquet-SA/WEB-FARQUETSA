@@ -1,9 +1,22 @@
 import { useCart } from "../context/CartContext";
 import { CONTACT_PHONE_TEL } from "../config/contact";
 import "./cartDrawer.css";
+import { Trash2, PhoneCall } from "lucide-react";
 
 export default function CartDrawer() {
-  const { items, subtotal, count, isOpen, close, inc, dec, setQty, normalizeQty, removeItem, clear } = useCart();
+  const {
+    items,
+    subtotal,
+    count,
+    isOpen,
+    close,
+    inc,
+    dec,
+    setQty,
+    normalizeQty,
+    removeItem,
+    clear,
+  } = useCart();
   const total = subtotal;
 
   return (
@@ -39,12 +52,17 @@ export default function CartDrawer() {
             items.map((x) => (
               <div className="cdItem" key={x.id}>
                 <div className="cdThumb">
-                  <img src={x.imagen || "https://via.placeholder.com/80"} alt={x.nombre} />
+                  <img
+                    src={x.imagen || "https://via.placeholder.com/80"}
+                    alt={x.nombre}
+                  />
                 </div>
 
                 <div className="cdInfo">
                   <div className="cdName">{x.nombre}</div>
-                  <div className="cdUnit">Q{(Number(x.precio) || 0).toFixed(2)} c/u</div>
+                  <div className="cdUnit">
+                    Q{(Number(x.precio) || 0).toFixed(2)} c/u
+                  </div>
 
                   <div className="cdQtyRow">
                     <button
@@ -84,13 +102,16 @@ export default function CartDrawer() {
                       title="Quitar producto"
                       aria-label={`Quitar ${x.nombre}`}
                     >
-                      🗑
+                      <Trash2 size={17} />
                     </button>
                   </div>
                 </div>
 
                 <div className="cdLineTotal">
-                  Q{(((Number(x.precio) || 0) * (Number(x.qty) || 0)) || 0).toFixed(2)}
+                  Q
+                  {(
+                    (Number(x.precio) || 0) * (Number(x.qty) || 0) || 0
+                  ).toFixed(2)}
                 </div>
               </div>
             ))
@@ -117,7 +138,9 @@ export default function CartDrawer() {
             </div>
 
             <a className="cdWhats" href={`tel:${CONTACT_PHONE_TEL}`}>
-              <span style={{ fontSize: 18 }}>☎</span>
+              <span style={{ fontSize: 18, display: "flex" }}>
+                <PhoneCall size={18} />
+              </span>
               Llamar para cotizar
             </a>
           </div>

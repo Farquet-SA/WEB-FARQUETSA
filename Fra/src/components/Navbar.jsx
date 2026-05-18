@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { CONTACT_PHONE_TEL } from "../config/contact";
 import "./navbar.css";
+import { ShoppingCart } from "lucide-react";
 
 export default function Navbar() {
   const { open, count } = useCart();
@@ -29,23 +30,42 @@ export default function Navbar() {
         </Link>
 
         <nav className={`navLinks${menuOpen ? " open" : ""}`}>
-          <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")} onClick={() => setMenuOpen(false)}>
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => (isActive ? "active" : "")}
+            onClick={() => setMenuOpen(false)}
+          >
             Inicio
           </NavLink>
-          <NavLink to="/servicios" className={({ isActive }) => (isActive ? "active" : "")} onClick={() => setMenuOpen(false)}>
+          <NavLink
+            to="/servicios"
+            className={({ isActive }) => (isActive ? "active" : "")}
+            onClick={() => setMenuOpen(false)}
+          >
             Servicios
           </NavLink>
-          <NavLink to="/productos" className={({ isActive }) => (isActive ? "active" : "")} onClick={() => setMenuOpen(false)}>
+          <NavLink
+            to="/productos"
+            className={({ isActive }) => (isActive ? "active" : "")}
+            onClick={() => setMenuOpen(false)}
+          >
             Productos
           </NavLink>
-          <NavLink to="/contacto" className={({ isActive }) => (isActive ? "active" : "")} onClick={() => setMenuOpen(false)}>
+          <NavLink
+            to="/contacto"
+            className={({ isActive }) => (isActive ? "active" : "")}
+            onClick={() => setMenuOpen(false)}
+          >
             Contacto
           </NavLink>
         </nav>
 
         <div className="navActions">
           <button className="cartBtn" type="button" onClick={open}>
-            <span className="cartIcon" aria-hidden="true">🛒</span>
+            <span className="cartIcon" aria-hidden="true">
+              <ShoppingCart size={20} />
+            </span>
             {count > 0 && <span className="cartBadge">{count}</span>}
           </button>
 
