@@ -100,18 +100,18 @@ DEBUG = get_bool("DJANGO_DEBUG", True)
  
 ALLOWED_HOSTS = get_list(
     "DJANGO_ALLOWED_HOSTS",
-    "127.0.0.1,localhost,farquetsaweb.com,www.farquetsaweb.com",
+    "127.0.0.1,localhost,farquetsa.com,www.farquetsa.com, farquetsaweb.com, www.farquetsaweb.com",
 )
  
 CORS_ALLOWED_ORIGINS = get_list(
     "DJANGO_CORS_ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173,https://farquetsaweb.com,https://www.farquetsaweb.com",
+    "http://localhost:5173,http://127.0.0.1:5173,https://farquetsa.com,https://www.farquetsa.com, https://farquetsaweb.com, https://www.farquetsaweb.com",
 )
 CORS_ALLOW_CREDENTIALS = True
  
 CSRF_TRUSTED_ORIGINS = get_list(
     "DJANGO_CSRF_TRUSTED_ORIGINS",
-    "https://farquetsaweb.com,https://www.farquetsaweb.com",
+    "https://farquetsa.com,https://www.farquetsa.com, https://farquetsaweb.com, https://www.farquetsaweb.com",
 )
  
  
