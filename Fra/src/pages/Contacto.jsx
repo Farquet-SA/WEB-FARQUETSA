@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { enviarContacto } from "../api/contacto";
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../config/contact";
 import "./home.css";
+import { Phone, ThumbsUp, Calendar } from "lucide-react";
 
 export default function Contacto() {
   const [nombre, setNombre] = useState("");
@@ -56,8 +57,8 @@ export default function Contacto() {
         {/* Tarjetas de contacto */}
         <div className="grid3" style={{ marginTop: 32 }}>
           <div className="cardInfo">
-            <h3>Atención telefónica</h3>
-            <p style={{ lineHeight: 1.6 }}>
+            <h3 style={{ textAlign: "center" }}>Atención telefónica</h3>
+            <p style={{ lineHeight: 1.6, textAlign: "justify" }}>
               Comunicación directa con nuestro equipo para consultas,
               cotizaciones y coordinación de pedidos.
             </p>
@@ -68,28 +69,73 @@ export default function Contacto() {
                 marginTop: 12,
                 fontWeight: 700,
                 textDecoration: "none",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 10,
               }}
             >
-              📞 {CONTACT_PHONE_DISPLAY}
+              <Phone size={17} /> {CONTACT_PHONE_DISPLAY}
             </a>
           </div>
 
           <div className="cardInfo">
-            <h3>Facebook oficial</h3>
-            <p style={{ lineHeight: 1.6 }}>
+            <h3 style={{ textAlign: "center" }}>Facebook oficial</h3>
+            <p style={{ lineHeight: 1.6, textAlign: "justify" }}>
               Información, novedades y atención directa a través de nuestra
               página oficial.
             </p>
-            <p style={{ marginTop: 12, fontWeight: 700 }}>
-              🔵 facebook.com/Farquetsa
+            <p
+              style={{
+                marginTop: 12,
+                fontWeight: 700,
+                textDecoration: "none",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <a
+                style={{
+                  marginTop: 12,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+                href="https://www.facebook.com/farquetsa/?locale=es_LA"
+              >
+                <br />
+                <br />
+                <ThumbsUp size={17} /> facebook.com/Farquetsa
+              </a>
             </p>
           </div>
 
           <div className="cardInfo">
-            <h3>Horarios de atención</h3>
+            <h3 style={{ textAlign: "center" }}>Horarios de atención</h3>
             <p>Lunes a Viernes: 8:00 a.m. – 5:00 p.m.</p>
             <p>Sábados: 8:00 a.m. – 12:00 p.m.</p>
             <p>Domingos: Cerrado</p>
+            <a
+              href={`tel:${CONTACT_PHONE_TEL}`}
+              style={{
+                display: "inline-flex",
+                marginTop: 12,
+                fontWeight: 700,
+                textDecoration: "none",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <Calendar size={17} />
+              Consulta nuestros horarios
+            </a>
           </div>
         </div>
 

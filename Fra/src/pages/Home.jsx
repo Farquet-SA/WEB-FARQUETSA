@@ -5,6 +5,14 @@ import "./home.css";
 import { Link, useNavigate } from "react-router-dom";
 import { getPublicaciones } from "../api/servicios";
 import PublicacionesCarrusel from "../components/Carrusel_Publicaciones";
+import {
+  Box,
+  Van,
+  ScrollText,
+  BadgeCheck,
+  ShoppingCart,
+  Search,
+} from "lucide-react";
 
 function FeaturedProductCard({ product, onAdd }) {
   const price = Number(product.precio || 0);
@@ -22,7 +30,10 @@ function FeaturedProductCard({ product, onAdd }) {
 
       <div className="featuredProductImage">
         <img
-          src={product.imagen || "https://via.placeholder.com/600x420?text=Producto"}
+          src={
+            product.imagen ||
+            "https://via.placeholder.com/600x420?text=Producto"
+          }
           alt={product.nombre}
           loading="eager"
           decoding="async"
@@ -32,7 +43,10 @@ function FeaturedProductCard({ product, onAdd }) {
       <div className="featuredProductBody">
         <div className="featuredProductCategory">{categoria.toUpperCase()}</div>
         <h3>{product.nombre}</h3>
-        <p>{product.descripcion || "Producto farmacéutico disponible para cotización."}</p>
+        <p>
+          {product.descripcion ||
+            "Producto farmacéutico disponible para cotización."}
+        </p>
         <strong>Q {price.toFixed(2)}</strong>
         <button
           type="button"
@@ -42,26 +56,7 @@ function FeaturedProductCard({ product, onAdd }) {
             onAdd(product);
           }}
         >
-          <svg
-            className="featuredCartIcon"
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <path
-              d="M5 6h2l1.25 8.25a2 2 0 0 0 1.98 1.75h6.9a2 2 0 0 0 1.92-1.45L20 11H8.1"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M10 20h.01M17 20h.01"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-          </svg>
+          <ShoppingCart size={15} />
           Agregar al carrito
         </button>
       </div>
@@ -80,7 +75,7 @@ export default function Home() {
     (async () => {
       try {
         const data = await getPublicaciones();
-        setPublicaciones(Array.isArray(data) ? data : data?.results ?? []);
+        setPublicaciones(Array.isArray(data) ? data : (data?.results ?? []));
       } catch (e) {
         console.error(e);
       }
@@ -102,35 +97,35 @@ export default function Home() {
       },
       {
         img: "/hero/farquetsa-hero-3.jpg",
-        title: "Atención personalizada",
+        title: "Atención personalizada para tu salud",
         subtitle: "Te asesoramos para elegir lo que necesitas con confianza.",
       },
     ],
-    []
+    [],
   );
 
   const highlights = useMemo(
     () => [
       {
-        icon: "📦",
+        icon: <Box />,
         title: "Distribución al por mayor",
         desc: "Abastecimiento para farmacias, clínicas y negocios locales.",
         cta: { label: "Ver más", to: "/servicios" },
       },
       {
-        icon: "🚚",
+        icon: <Van />,
         title: "Envíos disponibles",
         desc: "Entrega a domicilio según zona y disponibilidad.",
         cta: { label: "Consultar", to: "/contacto" },
       },
       {
-        icon: "🧾",
+        icon: <ScrollText />,
         title: "Cotización rápida",
         desc: "Arma tu cotización desde el catálogo en minutos.",
         cta: { label: "Cotizar", to: "/productos" },
       },
     ],
-    []
+    [],
   );
 
   const [idx, setIdx] = useState(0);
@@ -166,7 +161,7 @@ export default function Home() {
         const destacados = await getProducts(1, { destacado: true });
         const destacadosResults = Array.isArray(destacados)
           ? destacados
-          : destacados?.results ?? [];
+          : (destacados?.results ?? []);
 
         if (destacadosResults.length > 0) {
           setProducts(destacadosResults);
@@ -174,7 +169,9 @@ export default function Home() {
         }
 
         const catalogo = await getProducts(1);
-        setProducts(Array.isArray(catalogo) ? catalogo : catalogo?.results ?? []);
+        setProducts(
+          Array.isArray(catalogo) ? catalogo : (catalogo?.results ?? []),
+        );
       } catch (e) {
         console.error(e);
       }
@@ -183,7 +180,7 @@ export default function Home() {
 
   const featured = useMemo(() => {
     const filtered = products.filter((p) =>
-      (p?.nombre ?? "").toLowerCase().includes(q.toLowerCase())
+      (p?.nombre ?? "").toLowerCase().includes(q.toLowerCase()),
     );
     return filtered.slice(0, 5);
   }, [products, q]);
@@ -192,8 +189,9 @@ export default function Home() {
 
   const moveFeatured = (direction) => {
     if (!featured.length) return;
-    setFeaturedIdx((currentIndex) =>
-      (currentIndex + direction + featured.length) % featured.length
+    setFeaturedIdx(
+      (currentIndex) =>
+        (currentIndex + direction + featured.length) % featured.length,
     );
   };
 
@@ -245,7 +243,9 @@ export default function Home() {
 
             {/* Buscador (sin botones redundantes) */}
             <form className="heroSearch" onSubmit={goSearch}>
-              <span className="heroSearchIcon">🔎</span>
+              <span className="heroSearchIcon">
+                <Search color="black" size={17} />
+              </span>
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -336,7 +336,10 @@ export default function Home() {
               )}
 
               {featured.length > 1 && (
-                <div className="featuredDots" aria-label="Seleccionar destacado">
+                <div
+                  className="featuredDots"
+                  aria-label="Seleccionar destacado"
+                >
                   {featured.map((p, index) => (
                     <button
                       key={p.id}
@@ -381,9 +384,9 @@ export default function Home() {
                 </p>
                 <p>
                   FARQUETSA cuenta con amplias instalaciones aprobadas por
-                  servicios de salud y cumple con estándares internacionales como
-                  las Buenas Prácticas de Manufactura (BPM), manteniéndose a la
-                  vanguardia en desarrollo y calidad.
+                  servicios de salud y cumple con estándares internacionales
+                  como las Buenas Prácticas de Manufactura (BPM), manteniéndose
+                  a la vanguardia en desarrollo y calidad.
                 </p>
               </div>
             </div>
@@ -407,9 +410,9 @@ export default function Home() {
               </div>
               <p>
                 Posicionarnos como uno de los laboratorios más importantes en el
-                mercado guatemalteco, reconocidos como una institución innovadora
-                y con altos estándares de calidad en nuestros procesos, productos
-                y servicio al cliente.
+                mercado guatemalteco, reconocidos como una institución
+                innovadora y con altos estándares de calidad en nuestros
+                procesos, productos y servicio al cliente.
               </p>
             </div>
           </div>
@@ -434,9 +437,9 @@ export default function Home() {
             <div className="qualityBody">
               <p>
                 Estas prácticas abarcan todos los aspectos del proceso de
-                producción: desde la selección de materias primas, la capacitación
-                del personal y la limpieza de las instalaciones, hasta el control
-                de procesos y la trazabilidad de cada lote.
+                producción: desde la selección de materias primas, la
+                capacitación del personal y la limpieza de las instalaciones,
+                hasta el control de procesos y la trazabilidad de cada lote.
               </p>
               <p>
                 En Farmacéutica Quetzalteca, S.A., nos enorgullece cumplir con
@@ -483,7 +486,8 @@ export default function Home() {
               <div className="kicker">Servicios</div>
               <h2>Nuestros Servicios</h2>
               <p className="muted">
-                Atención, abastecimiento y soluciones rápidas para clientes y negocios.
+                Atención, abastecimiento y soluciones rápidas para clientes y
+                negocios.
               </p>
             </div>
 
@@ -495,7 +499,9 @@ export default function Home() {
           <div className="grid3">
             <div className="serviceCard">
               <div className="svcTop">
-                <div className="svcIcon">📦</div>
+                <div className="svcIcon">
+                  <Box />
+                </div>
                 <h3>Distribución al por mayor</h3>
               </div>
               <p className="muted">
@@ -505,7 +511,9 @@ export default function Home() {
 
             <div className="serviceCard">
               <div className="svcTop">
-                <div className="svcIcon">✅</div>
+                <div className="svcIcon">
+                  <BadgeCheck />
+                </div>
                 <h3>Catálogo por disponibilidad</h3>
               </div>
               <p className="muted">
@@ -515,7 +523,9 @@ export default function Home() {
 
             <div className="serviceCard">
               <div className="svcTop">
-                <div className="svcIcon">🚚</div>
+                <div className="svcIcon">
+                  <Van />
+                </div>
                 <h3>Envíos y cotizaciones</h3>
               </div>
               <p className="muted">
@@ -525,7 +535,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
