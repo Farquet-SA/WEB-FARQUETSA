@@ -115,7 +115,7 @@ class Servicio(models.Model):
         return self.title
     
 class PasoProceso(models.Model):
-    numero = models.CharField(max_length=10)
+    numero = models.CharField(max_length=50)
     title = models.CharField(max_length=255)
     text = models.TextField()
 
