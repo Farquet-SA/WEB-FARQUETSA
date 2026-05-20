@@ -9,6 +9,7 @@ import {
   deleteAdmin,
 } from "../../api/admin";
 import "./adminUsuarios.css";
+import { Eye, EyeClosed } from "lucide-react";
 
 const ROLE_OPTIONS = [
   { value: "admin", label: "Administrador" },
@@ -67,16 +68,20 @@ export default function AdminUsuarios() {
     if (!form.username.trim()) return "El nombre de usuario es obligatorio.";
     if (!form.email.trim()) return "El correo electrónico es obligatorio.";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email.trim())) return "El correo electrónico no es válido.";
-    if (!editingId && !form.password) return "La contraseña es obligatoria para nuevos usuarios.";
-    if (form.password && form.password.length < 6) return "La contraseña debe tener al menos 6 caracteres.";
+    if (!emailRegex.test(form.email.trim()))
+      return "El correo electrónico no es válido.";
+    if (!editingId && !form.password)
+      return "La contraseña es obligatoria para nuevos usuarios.";
+    if (form.password && form.password.length < 6)
+      return "La contraseña debe tener al menos 6 caracteres.";
     return null;
   };
 
   const handleApiError = (err, fallbackMessage) => {
     const status = err?.response?.status;
     if (status === 401) setError("Tu sesión expiró. Vuelve a iniciar sesión.");
-    else if (status === 403) setError("No tienes permisos suficientes para realizar esta acción.");
+    else if (status === 403)
+      setError("No tienes permisos suficientes para realizar esta acción.");
     else setError(fallbackMessage);
   };
 
@@ -95,7 +100,10 @@ export default function AdminUsuarios() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationError = validate();
-    if (validationError) { setError(validationError); return; }
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     setSaving(true);
     setError("");
@@ -115,7 +123,12 @@ export default function AdminUsuarios() {
       }
       resetForm({ clearFeedback: false });
     } catch (err) {
-      handleApiError(err, editingId ? "No se pudo actualizar el usuario." : "No se pudo crear el usuario.");
+      handleApiError(
+        err,
+        editingId
+          ? "No se pudo actualizar el usuario."
+          : "No se pudo crear el usuario.",
+      );
     } finally {
       setSaving(false);
     }
@@ -146,7 +159,8 @@ export default function AdminUsuarios() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Se eliminará este usuario. ¿Deseas continuar?")) return;
+    if (!window.confirm("Se eliminará este usuario. ¿Deseas continuar?"))
+      return;
     try {
       await deleteAdmin(id);
       const updatedUsers = await getAdmins();
@@ -173,7 +187,8 @@ export default function AdminUsuarios() {
       <div className="auSection">
         <h1 className="auSectionTitle">Acceso denegado</h1>
         <p className="auSectionSub">
-          Solo los usuarios con rol <strong>superadmin</strong> pueden acceder a esta sección.
+          Solo los usuarios con rol <strong>superadmin</strong> pueden acceder a
+          esta sección.
         </p>
       </div>
     );
@@ -187,7 +202,8 @@ export default function AdminUsuarios() {
           <div>
             <h1 className="auSectionTitle">Usuarios</h1>
             <p className="auSectionSub">
-              Desde aquí puedes crear, editar y eliminar usuarios administradores.
+              Desde aquí puedes crear, editar y eliminar usuarios
+              administradores.
             </p>
           </div>
           {editingId && (
@@ -202,14 +218,18 @@ export default function AdminUsuarios() {
             <input
               className="auInput"
               value={form.username}
-              onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, username: e.target.value }))
+              }
               placeholder="Nombre de usuario *"
               required
             />
             <input
               className="auInput"
               value={form.email}
-              onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, email: e.target.value }))
+              }
               placeholder="Correo electrónico *"
               type="email"
               required
@@ -221,8 +241,12 @@ export default function AdminUsuarios() {
               <input
                 className="auInput"
                 value={form.password}
-                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
-                placeholder={editingId ? "Nueva contraseña (opcional)" : "Contraseña *"}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, password: e.target.value }))
+                }
+                placeholder={
+                  editingId ? "Nueva contraseña (opcional)" : "Contraseña *"
+                }
                 type={showPassword ? "text" : "password"}
               />
               <button
@@ -231,13 +255,15 @@ export default function AdminUsuarios() {
                 onClick={() => setShowPassword((v) => !v)}
                 title={showPassword ? "Ocultar" : "Mostrar"}
               >
-                {showPassword ? "🙈" : "👁️"}
+                {showPassword ? <EyeClosed size={17} /> : <Eye size={17} />}
               </button>
             </div>
             <select
               className="auInput"
               value={form.role}
-              onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, role: e.target.value }))
+              }
             >
               {ROLE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -251,11 +277,17 @@ export default function AdminUsuarios() {
             <div
               className="auToggleTrack"
               style={{ background: form.is_active ? "#0b2b4b" : "#c9d8ee" }}
-              onClick={() => setForm((prev) => ({ ...prev, is_active: !prev.is_active }))}
+              onClick={() =>
+                setForm((prev) => ({ ...prev, is_active: !prev.is_active }))
+              }
             >
               <div
                 className="auToggleThumb"
-                style={{ transform: form.is_active ? "translateX(20px)" : "translateX(2px)" }}
+                style={{
+                  transform: form.is_active
+                    ? "translateX(20px)"
+                    : "translateX(2px)",
+                }}
               />
             </div>
             <span className="auToggleLabel">
@@ -266,7 +298,11 @@ export default function AdminUsuarios() {
           {error && <div className="auError">{error}</div>}
 
           <button type="submit" disabled={saving} className="auSubmitBtn">
-            {saving ? "Guardando..." : editingId ? "Actualizar usuario" : "Crear usuario"}
+            {saving
+              ? "Guardando..."
+              : editingId
+                ? "Actualizar usuario"
+                : "Crear usuario"}
           </button>
         </form>
       </section>
@@ -278,7 +314,9 @@ export default function AdminUsuarios() {
             <h2 className="auSectionTitle">Listado actual</h2>
             <p className="auSectionSub">{`${users.length} usuario(s) registrado(s)`}</p>
           </div>
-          {loading && <span style={{ color: "#5c6b7b" }}>Cargando usuarios...</span>}
+          {loading && (
+            <span style={{ color: "#5c6b7b" }}>Cargando usuarios...</span>
+          )}
         </div>
 
         {users.length === 0 && !loading ? (
@@ -309,10 +347,18 @@ export default function AdminUsuarios() {
                 </div>
 
                 <div className="auRowActions">
-                  <button type="button" className="auSecBtn" onClick={() => handleEdit(user)}>
+                  <button
+                    type="button"
+                    className="auSecBtn"
+                    onClick={() => handleEdit(user)}
+                  >
                     Editar
                   </button>
-                  <button type="button" className="auSecBtn danger" onClick={() => handleDelete(user.id)}>
+                  <button
+                    type="button"
+                    className="auSecBtn danger"
+                    onClick={() => handleDelete(user.id)}
+                  >
                     Eliminar
                   </button>
                 </div>

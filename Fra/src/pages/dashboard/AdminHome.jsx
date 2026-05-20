@@ -4,10 +4,16 @@ import { getProducts } from "../../api/products";
 import { getCategories } from "../../api/categories";
 import { getAdmins } from "../../api/admin";
 import { getServicios } from "../../api/servicios";
+import { Package, Folder, Stethoscope, Users } from "lucide-react";
 
 export default function AdminHome() {
   const role = getRole();
-  const [stats, setStats] = useState({ products: 0, categories: 0, services: 0, users: 0 });
+  const [stats, setStats] = useState({
+    products: 0,
+    categories: 0,
+    services: 0,
+    users: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   const loadStats = useCallback(async () => {
@@ -156,17 +162,25 @@ export default function AdminHome() {
           }}
         >
           <a href="/admin/productos" style={actionLinkStyle}>
-            <div style={actionCardStyle}>📦 Gestionar Productos</div>
+            <div style={actionCardStyle}>
+              <Package size={18} /> Gestionar Productos
+            </div>
           </a>
           <a href="/admin/categorias" style={actionLinkStyle}>
-            <div style={actionCardStyle}>📂 Gestionar Categorías</div>
+            <div style={actionCardStyle}>
+              <Folder size={18} /> Gestionar Categorías
+            </div>
           </a>
           <a href="/admin/servicios" style={actionLinkStyle}>
-            <div style={actionCardStyle}>🩺 Gestionar Servicios</div>
+            <div style={actionCardStyle}>
+              <Stethoscope size={18} /> Gestionar Servicios
+            </div>
           </a>
           {role === "superadmin" && (
             <a href="/admin/usuarios" style={actionLinkStyle}>
-              <div style={actionCardStyle}>👥 Gestionar Usuarios</div>
+              <div style={actionCardStyle}>
+                <Users size={18} /> Gestionar Usuarios
+              </div>
             </a>
           )}
         </div>
@@ -202,6 +216,11 @@ const actionLinkStyle = {
 };
 
 const actionCardStyle = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "10px",
   background: "#eaf2ff",
   border: "1px solid #dbe7f7",
   borderRadius: 12,

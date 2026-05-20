@@ -107,7 +107,7 @@ class ConfiguracionSistema(models.Model):
 
 
 class Servicio(models.Model):
-    icon = models.CharField(max_length=10)
+    icon = models.CharField(max_length=50)
     title = models.CharField(max_length=255)
     text = models.TextField()
 
@@ -124,7 +124,7 @@ class PasoProceso(models.Model):
 
 
 class Confianza(models.Model):
-    icon = models.CharField(max_length=10)
+    icon = models.CharField(max_length=50)
     title = models.CharField(max_length=255)
     text = models.TextField()
 
@@ -132,7 +132,7 @@ class Confianza(models.Model):
         return self.title
     
 class Publicacion(models.Model):
-    icon = models.CharField(max_length=10)
+    icon = models.CharField(max_length=50)
     title = models.CharField(max_length=255)
     text = models.TextField()
     image = models.URLField(blank=True)
