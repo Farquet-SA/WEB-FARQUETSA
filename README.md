@@ -132,7 +132,7 @@ git push origin develop
 ```
 
 Los cambios pasan a producción (`main`) solo cuando el líder del proyecto hace el merge.
-
+ 
 ---
 
 ## Resumen de comandos diarios
