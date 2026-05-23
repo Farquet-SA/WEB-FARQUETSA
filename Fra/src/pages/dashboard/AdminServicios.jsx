@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import IconPicker from "./SelectorIconos";
 import * as LucideIcons from "lucide-react";
@@ -29,6 +29,42 @@ const EMPTY_FORM = {
   text: "",
   section: "servicios",
   image: null,
+  video_url: "",
+};
+
+const getVideoEmbedUrl = (url = "") => {
+  const value = String(url).trim();
+  if (!value) return "";
+
+  const youtubeMatch = value.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/,
+  );
+  if (youtubeMatch?.[1]) {
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+  }
+
+  const tiktokMatch = value.match(/tiktok\.com\/.*\/video\/(\d+)/);
+  if (tiktokMatch?.[1]) {
+    return `https://www.tiktok.com/embed/v2/${tiktokMatch[1]}`;
+  }
+
+  return "";
+};
+
+const getApiErrorMessage = (err) => {
+  const data = err?.response?.data;
+  if (!data) return "Ocurrió un error al guardar, revise lo ingresado e intente nuevamente.";
+  if (typeof data === "string") return data;
+  if (Array.isArray(data)) return data.join(" ");
+  if (typeof data === "object") {
+    return Object.entries(data)
+      .map(([field, value]) => {
+        const message = Array.isArray(value) ? value.join(" ") : String(value);
+        return `${field}: ${message}`;
+      })
+      .join(" ");
+  }
+  return "Ocurrió un error al guardar, revise lo ingresado e intente nuevamente.";
 };
 
 export default function AdminServicios() {
@@ -39,6 +75,7 @@ export default function AdminServicios() {
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [imagePreview, setImagePreview] = useState("");
+  const formRef = useRef(null);
 
   const [editingId, setEditingId] = useState(null);
 
@@ -67,10 +104,10 @@ export default function AdminServicios() {
       const confianzaData = await getConfianza();
       const publicationsData = await getPublicaciones();
 
-      setServices(Array.isArray(serviciosData) ? serviciosData : []);
-      setSteps(Array.isArray(pasosData) ? pasosData : []);
-      setTrust(Array.isArray(confianzaData) ? confianzaData : []);
-      setPublications(Array.isArray(publicationsData) ? publicationsData : []);
+      setServices(Array.isArray(serviciosData) ? serviciosData : serviciosData?.results ?? []);
+      setSteps(Array.isArray(pasosData) ? pasosData : pasosData?.results ?? []);
+      setTrust(Array.isArray(confianzaData) ? confianzaData : confianzaData?.results ?? []);
+      setPublications(Array.isArray(publicationsData) ? publicationsData : publicationsData?.results ?? []);
     } catch {
       toast.error("No se pudieron cargar los datos.");
     } finally {
@@ -160,6 +197,7 @@ export default function AdminServicios() {
           title: form.title.trim(),
           text: form.text.trim(),
           image: imageUrl || "",
+          video_url: form.video_url.trim(),
         };
         if (editingId) {
           await updatePublicacion(editingId, pubPayload);
@@ -172,10 +210,8 @@ export default function AdminServicios() {
 
       await loadData();
       resetForm();
-    } catch {
-      toast.error(
-        "Ocurrió un error al guardar, revise lo ingresado e intente nuevamente.",
-      );
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -190,9 +226,11 @@ export default function AdminServicios() {
       text: item.text || "",
       section,
       image: item.image || null,
+      video_url: item.video_url || "",
     });
 
     setError("");
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleDelete = async (id, section) => {
@@ -235,6 +273,7 @@ export default function AdminServicios() {
               {sectionName === "publicaciones" && (
                 <img
                   src={item.image || "https://via.placeholder.com/92?text=Img"}
+                  alt={item.title}
                   style={{
                     width: 92,
                     height: 92,
@@ -259,6 +298,11 @@ export default function AdminServicios() {
                 <div style={{ color: "#5c6b7b", marginTop: 3, fontSize: 14 }}>
                   {item.text}
                 </div>
+                {sectionName === "publicaciones" && item.video_url && (
+                  <div style={{ color: "#0b2b4b", marginTop: 6, fontSize: 13, fontWeight: 800 }}>
+                    Video enlazado
+                  </div>
+                )}
               </div>
 
               <div style={{ display: "flex", gap: 8 }}>
@@ -298,6 +342,7 @@ export default function AdminServicios() {
         )}
 
         <form
+          ref={formRef}
           onSubmit={handleSubmit}
           style={{ display: "grid", gap: 14, marginTop: 18 }}
         >
@@ -308,6 +353,7 @@ export default function AdminServicios() {
                 ...prev,
                 section: e.target.value,
                 image: null,
+                video_url: "",
               }))
             }
             style={inputStyle}
@@ -315,7 +361,7 @@ export default function AdminServicios() {
             <option value="servicios">Nuestros Servicios</option>
             <option value="pasos">Cómo trabajamos</option>
             <option value="confianza">Compromiso y confianza</option>
-            <option value="publicaciones">Publicaciónes</option>
+            <option value="publicaciones">Publicaciones</option>
           </select>
 
           <IconPicker
@@ -362,7 +408,7 @@ export default function AdminServicios() {
               }}
             >
               <label style={{ color: "#20344f", fontWeight: 700 }}>
-                Imagen del producto
+                Imagen de la publicación
               </label>
               <p>De preferencia, la imagen en formato horizontal</p>
               <input
@@ -395,6 +441,41 @@ export default function AdminServicios() {
                   />
                 </div>
               )}
+
+              <label style={{ color: "#20344f", fontWeight: 700 }}>
+                Enlace de video
+              </label>
+              <p>Pega un enlace de YouTube o TikTok para mostrar el video dentro de la web.</p>
+              <input
+                type="url"
+                value={form.video_url}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, video_url: e.target.value }))
+                }
+                placeholder="https://www.youtube.com/watch?v=..."
+                style={inputStyle}
+              />
+
+              {getVideoEmbedUrl(form.video_url) && (
+                <div
+                  style={{
+                    borderRadius: 14,
+                    overflow: "hidden",
+                    border: "1px solid #e5edf7",
+                    background: "#0b2b4b",
+                    aspectRatio: "16 / 9",
+                    maxWidth: 520,
+                  }}
+                >
+                  <iframe
+                    src={getVideoEmbedUrl(form.video_url)}
+                    title="Vista previa del video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    style={{ width: "100%", height: "100%", border: 0 }}
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -407,7 +488,7 @@ export default function AdminServicios() {
       {renderSection("Nuestros Servicios", services, "servicios")}
       {renderSection("Cómo trabajamos", steps, "pasos")}
       {renderSection("Compromiso y confianza", trust, "confianza")}
-      {renderSection("Publicaciónes", publications, "publicaciones")}
+      {renderSection("Publicaciones", publications, "publicaciones")}
     </div>
   );
 }

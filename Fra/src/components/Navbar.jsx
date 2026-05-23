@@ -21,11 +21,11 @@ export default function Navbar() {
           <img
             className="brandLogo"
             src="/logo-farquetsa-header.png"
-            alt="Logo de Farquetsa"
+            alt="Farquetsa - Farmacéutica Quetzalteca S.A."
           />
           <div className="brandText">
             <strong>Farquetsa</strong>
-            <span>Farmaceutica S.A</span>
+            <span>Farmacéutica Quetzalteca S.A</span>
           </div>
         </Link>
 

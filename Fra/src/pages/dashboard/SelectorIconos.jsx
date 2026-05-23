@@ -125,6 +125,7 @@ export default function IconPicker({ value, onChange }) {
   );
 
   const selected = ICONS.find((i) => i.name === value);
+  const SelectedIcon = selected?.Icon;
 
   return (
     <div style={{ position: "relative" }}>
@@ -134,8 +135,8 @@ export default function IconPicker({ value, onChange }) {
         onClick={() => setOpen((prev) => !prev)}
         style={triggerStyle}
       >
-        {selected ? (
-          <selected.Icon size={18} />
+        {SelectedIcon ? (
+          <SelectedIcon size={18} />
         ) : (
           <span style={{ color: "#aaa" }}></span>
         )}
@@ -176,25 +177,28 @@ export default function IconPicker({ value, onChange }) {
                 Sin resultados
               </p>
             )}
-            {filtered.map(({ name, label, Icon }) => (
+            {filtered.map((item) => {
+              const ItemIcon = item.Icon;
+              return (
               <button
-                key={name}
+                key={item.name}
                 type="button"
-                title={label}
+                title={item.label}
                 onClick={() => {
-                  onChange(name); // guarda el nombre del ícono, ej. "Heart"
+                  onChange(item.name);
                   setOpen(false);
                   setSearch("");
                 }}
                 style={{
                   ...itemStyle,
-                  ...(value === name ? selectedItemStyle : {}),
+                  ...(value === item.name ? selectedItemStyle : {}),
                 }}
               >
-                <Icon size={20} />
-                <span style={itemLabelStyle}>{label}</span>
+                <ItemIcon size={20} />
+                <span style={itemLabelStyle}>{item.label}</span>
               </button>
-            ))}
+            );
+            })}
           </div>
         </div>
       )}

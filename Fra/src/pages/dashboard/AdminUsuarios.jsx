@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getRole } from "../../api/auth";
 import {
@@ -33,6 +33,15 @@ export default function AdminUsuarios() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const formRef = useRef(null);
+
+  const handleApiError = useCallback((err, fallbackMessage) => {
+    const status = err?.response?.status;
+    if (status === 401) setError("Tu sesión expiró. Vuelve a iniciar sesión.");
+    else if (status === 403)
+      setError("No tienes permisos suficientes para realizar esta acción.");
+    else setError(fallbackMessage);
+  }, []);
 
   const loadUsers = useCallback(async () => {
     if (role !== "superadmin") {
@@ -51,7 +60,7 @@ export default function AdminUsuarios() {
     } finally {
       setLoading(false);
     }
-  }, [role]);
+  }, [handleApiError, role]);
 
   useEffect(() => {
     loadUsers();
@@ -75,14 +84,6 @@ export default function AdminUsuarios() {
     if (form.password && form.password.length < 6)
       return "La contraseña debe tener al menos 6 caracteres.";
     return null;
-  };
-
-  const handleApiError = (err, fallbackMessage) => {
-    const status = err?.response?.status;
-    if (status === 401) setError("Tu sesión expiró. Vuelve a iniciar sesión.");
-    else if (status === 403)
-      setError("No tienes permisos suficientes para realizar esta acción.");
-    else setError(fallbackMessage);
   };
 
   const buildPayload = () => {
@@ -156,6 +157,7 @@ export default function AdminUsuarios() {
     }
     setError("");
     setShowPassword(false);
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleDelete = async (id) => {
@@ -213,7 +215,7 @@ export default function AdminUsuarios() {
           )}
         </div>
 
-        <form className="auForm" onSubmit={handleSubmit}>
+        <form ref={formRef} className="auForm" onSubmit={handleSubmit}>
           <div className="auFormRow">
             <input
               className="auInput"

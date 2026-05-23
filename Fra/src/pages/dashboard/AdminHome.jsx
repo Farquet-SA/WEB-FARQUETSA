@@ -79,8 +79,9 @@ export default function AdminHome() {
           Bienvenido, {role === "superadmin" ? "Superadmin" : "Administrador"}
         </h1>
         <p style={{ color: "#5c6b7b", marginTop: 8 }}>
-          Gestiona el catálogo de productos, categorías y{" "}
-          {role === "superadmin" ? "usuarios" : "contenido"} de Rayito Pharmacy.
+          {role === "superadmin"
+            ? "Gestiona el catálogo de productos, categorías, servicios y usuarios."
+            : "Gestiona el catálogo de productos, categorías y servicios."}
         </p>
       </div>
 

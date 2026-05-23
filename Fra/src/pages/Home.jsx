@@ -236,7 +236,7 @@ export default function Home() {
 
         <div className="heroContent">
           <div className="container">
-            <div className="heroKicker">FARQUETSA • Farmacéutica S.A</div>
+            <div className="heroKicker">FARQUETSA • Farmacéutica Quetzalteca S.A</div>
 
             <h1>{current.title}</h1>
             <p>{current.subtitle}</p>
@@ -378,9 +378,9 @@ export default function Home() {
               <h2>¿Quiénes Somos?</h2>
               <div className="aboutCopy">
                 <p>
-                  Laboratorio FARQUETSA es una empresa guatemalteca fundada en
-                  2007 por empresarios con más de 35 años de experiencia en el
-                  sector farmacéutico nacional y centroamericano.
+                  Laboratorio FARQUETSA es una empresa guatemalteca impulsada
+                  por empresarios con amplia experiencia en el sector
+                  farmacéutico nacional y centroamericano.
                 </p>
                 <p>
                   FARQUETSA cuenta con amplias instalaciones aprobadas por

@@ -18,12 +18,12 @@ export default function AdminLayout() {
           <div className="adminBrand">
             <img
               src="/logo-farquetsa.png"
-              alt="Logo Farquetsa"
+              alt="Farquetsa - Farmacéutica Quetzalteca S.A."
               className="adminBrandLogo"
             />
             <div>
               <div className="adminBrandName">Panel Admin</div>
-              <div className="adminBrandSub">Farquetsa</div>
+              <div className="adminBrandSub">Farmacéutica Quetzalteca S.A</div>
             </div>
           </div>
 

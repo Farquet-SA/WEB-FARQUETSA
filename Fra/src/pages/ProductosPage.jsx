@@ -104,7 +104,7 @@ export default function ProductosPage() {
         setLoading(false);
       }
     },
-    [q, selectedCats, selectedStates, priceMin, priceMax]
+    [q, selectedCats, selectedStates, priceMin, priceMax, priceBounds.min, priceBounds.max]
   );
 
   // Volver a página 1 cada vez que cambien los filtros
