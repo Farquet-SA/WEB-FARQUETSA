@@ -33,6 +33,20 @@ const blockedConsoleMethods = [
   "warn",
 ];
 
+function isMobileDevice() {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return false;
+
+  // Detecta por User Agent (cubre la gran mayoría de móviles y tablets)
+  const uaMatch = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+
+  // Detecta por la API de touch points (respaldo adicional)
+  const touchDevice = navigator.maxTouchPoints > 1;
+
+  return uaMatch || touchDevice;
+}
+
 function isBlockedShortcut(event) {
   const key = event.key.toLowerCase();
   const ctrlOrMeta = event.ctrlKey || event.metaKey;
@@ -150,7 +164,15 @@ function interceptConsole() {
 export function setupDevtoolsDeterrence(options = {}) {
   const settings = { ...DEFAULT_OPTIONS, ...options };
 
-  if (!settings.enabled || typeof window === "undefined" || typeof document === "undefined") {
+  // No activar en dispositivos móviles: la diferencia de dimensiones
+  // es natural en móviles (barra de URL, barra de navegación del browser)
+  // y causaría falsos positivos bloqueando la pantalla sin razón.
+  if (
+    !settings.enabled ||
+    typeof window === "undefined" ||
+    typeof document === "undefined" ||
+    isMobileDevice()
+  ) {
     return () => {};
   }
 
