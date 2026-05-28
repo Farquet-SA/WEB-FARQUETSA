@@ -290,4 +290,11 @@
     height: 150px;
     transform: translateX(-180px) scale(0.85) rotateY(14deg);
   }
+  .overlay > p {
+    color: transparent;
+  }
+
+  .overlay > h3 {
+    color: transparent;
+  }
 }
