@@ -86,7 +86,7 @@ export default function Home() {
     () => [
       {
         img: "/hero/farquetsa-hero-1.jpg",
-        title: "Tu Farmacia de Confianza en Guatemala",
+        title: "Tus Productos de Confianza en Guatemala",
         subtitle:
           "Medicamentos, salud y bienestar. Atención rápida, confiable y cercana.",
       },
@@ -467,14 +467,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section soft">
-        <div className="container">
-          <div className="centerHead">
-            <div className="kicker">Novedades</div>
-            <h2>Últimas Publicaciones</h2>
-            <p>Noticias, consejos y novedades del mundo farmacéutico.</p>
-            <PublicacionesCarrusel publicaciones={publicaciones} />
-          </div>
+      <section
+        className="section soft"
+        style={{ padding: "20px 0 0 0", margin: 0 }}
+      >
+        <div className="container centerHead">
+          <div className="kicker">Novedades</div>
+          <h2>Últimas Publicaciones</h2>
+          <p>Noticias, consejos y novedades del mundo farmacéutico.</p>
+          <PublicacionesCarrusel publicaciones={publicaciones} />
         </div>
       </section>
 

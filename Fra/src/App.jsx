@@ -2,6 +2,8 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import SiteLayout from "./layouts/SiteLayout";
+import ScrollToTop from "./components/ScrollToTop";
+import NotFound from "./components/NotFound";
 
 import { CartProvider } from "./context/CartContext";
 import CartDrawer from "./components/CartDrawer";
@@ -24,13 +26,18 @@ const Historial = lazy(() => import("./pages/dashboard/Historial"));
 const SuperAdmin = lazy(() => import("./pages/dashboard/SuperAdmin"));
 
 function PageFallback() {
-  return <div className="pageFallback" aria-live="polite">Cargando...</div>;
+  return (
+    <div className="pageFallback" aria-live="polite">
+      Cargando...
+    </div>
+  );
 }
 
 export default function App() {
   return (
     <CartProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route element={<SiteLayout />}>
@@ -38,6 +45,7 @@ export default function App() {
               <Route path="/productos" element={<Productos />} />
               <Route path="/servicios" element={<Servicios />} />
               <Route path="/contacto" element={<Contacto />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
 
             <Route path="/login" element={<AdminLogin />} />
@@ -45,9 +53,7 @@ export default function App() {
 
             {/* ================= ADMIN PROTEGIDO ================= */}
             <Route
-              element={
-                <PrivateRoute allowedRoles={["admin", "superadmin"]} />
-              }
+              element={<PrivateRoute allowedRoles={["admin", "superadmin"]} />}
             >
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminHome />} />
@@ -55,9 +61,7 @@ export default function App() {
                 <Route path="categorias" element={<AdminCategorias />} />
                 <Route path="servicios" element={<AdminServicios />} />
 
-                <Route
-                  element={<PrivateRoute allowedRoles={["superadmin"]} />}
-                >
+                <Route element={<PrivateRoute allowedRoles={["superadmin"]} />}>
                   <Route path="historial" element={<Historial />} />
                   <Route path="usuarios" element={<AdminUsuarios />} />
                   <Route path="configuracion" element={<SuperAdmin />} />
