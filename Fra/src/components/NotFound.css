@@ -1,0 +1,48 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+
+.code {
+  font-size: 6rem;
+  font-weight: 700;
+  color: #dbe7f7;
+  line-height: 1;
+  margin: 0 0 0.25rem;
+  letter-spacing: -2px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: var(--weight-bold, 700);
+  color: #0b2b4d;
+  margin: 0 0 0.75rem;
+}
+
+.desc {
+  font-size: 0.95rem;
+  color: #5c6b7b;
+  margin: 0 0 2rem;
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+.btn {
+  text-decoration: none;
+  background: #0b2b4d;
+  color: white;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-weight: var(--weight-bold, 700);
+  font-size: 14px;
+  transition: background 0.18s ease;
+}
+
+.btn:hover {
+  background: #0d3560;
+}
