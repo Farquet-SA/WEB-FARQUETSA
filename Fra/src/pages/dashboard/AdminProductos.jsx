@@ -150,6 +150,7 @@ export default function AdminProductos() {
     }
     setPreview(product.imagen || "");
     setError("");
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleDelete = async (id) => {

@@ -9,7 +9,7 @@ export default function Footer() {
           <img
             className="footerLogo"
             src="/logo-farquetsa.png"
-            alt="Logo de Farquetsa"
+            alt="Farquetsa - Farmacéutica Quetzalteca S.A."
           />
           <div>
             <h2>FARQUETSA</h2>

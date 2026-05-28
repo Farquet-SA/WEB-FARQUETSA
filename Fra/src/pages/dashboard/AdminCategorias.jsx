@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../../api/categories";
 
@@ -14,8 +14,6 @@ export default function AdminCategorias() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  const nextId = useRef(1);
 
   const loadData = async () => {
     setLoading(true);
@@ -60,37 +58,34 @@ export default function AdminCategorias() {
     setSaving(true);
     setError("");
 
-    if (editingId) await updateCategory(editingId, { nombre: form.nombre.trim(), descripcion: form.descripcion.trim() });
-    else await createCategory({ nombre: form.nombre.trim(), descripcion: form.descripcion.trim() });
-
-    await loadData();
-    await new Promise((r) => setTimeout(r, 300));
-
-    if (editingId) {
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === editingId ? { ...c, nombre: form.nombre.trim(), descripcion: form.descripcion.trim() } : c
-        )
-      );
-      toast.success("Categoría actualizada.");
-    } else {
-      const newCat = {
-        id: nextId.current++,
+    try {
+      const payload = {
         nombre: form.nombre.trim(),
         descripcion: form.descripcion.trim(),
       };
-      setCategories((prev) => [...prev, newCat]);
-      toast.success("Categoría creada.");
-    }
 
-    setSaving(false);
-    resetForm();
+      if (editingId) {
+        await updateCategory(editingId, payload);
+        toast.success("Categoría actualizada.");
+      } else {
+        await createCategory(payload);
+        toast.success("Categoría creada.");
+      }
+
+      await loadData();
+      resetForm();
+    } catch {
+      toast.error("No se pudo guardar la categoría.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEdit = (cat) => {
     setEditingId(cat.id);
     setForm({ nombre: cat.nombre || "", descripcion: cat.descripcion || "" });
     setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id) => {

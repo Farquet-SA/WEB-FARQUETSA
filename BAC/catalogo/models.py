@@ -132,10 +132,11 @@ class Confianza(models.Model):
         return self.title
     
 class Publicacion(models.Model):
-    icon = models.CharField(max_length=50)
+    icon = models.CharField(max_length=50, blank=True, default="")
     title = models.CharField(max_length=255)
     text = models.TextField()
     image = models.URLField(blank=True)
+    video_url = models.URLField(blank=True, default="")
 
     def __str__(self):
         return self.title
